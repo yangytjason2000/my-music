@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {FaBars, FaTimes} from 'react-icons/fa';
 import logo from '../assets/logo2.png'
-
+import { Link } from 'react-router-dom';
 const Navbar = () => {
     const [navVisible,setNavVisible] = useState(false);
     const handleClick = () => {
@@ -34,15 +34,19 @@ const Navbar = () => {
             </div>
             {/* menu */}
             <ul className='hidden md:flex font-poppins'>
-                <li className='cursor-pointer px-5'>
-                    Home
-                </li>
+                <Link to='/'>
+                    <li className='cursor-pointer px-5'>
+                        Home
+                    </li>
+                </Link>
                 <li className='cursor-pointer px-5'>
                     Upload
                 </li>
-                <li className='cursor-pointer px-5'>
-                    Contact
-                </li>
+                <Link to='/contact'>
+                    <li className='cursor-pointer px-5'>
+                        Contact
+                    </li>
+                </Link>
             </ul>
             {/* hamburger */}
             <div onClick={handleClick} className='md:hidden z-10'>

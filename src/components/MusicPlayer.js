@@ -10,7 +10,8 @@ const MusicPlayer = () =>{
     const [isPlaying, setIsPlaying] = useState(false);
     const [play,{pause,duration,sound}] = useSound(data[0].source);
     const [currentIndex, setCurrIndex] = useState(0);
-    const [effect,setEffect] = useState(false);
+    const [shrink,setShrink] = useState(false);
+    const [expand,setExpand] = useState(false);
 
     const [time, setTime] = useState({
         min: "",
@@ -67,7 +68,11 @@ const MusicPlayer = () =>{
     }
 
     const handleShrink  = () => {
-        setEffect(effect=>!effect);
+        setShrink(shrink=>!shrink);
+    }
+
+    const handleExpand = () => {
+        setExpand(expand=>!expand);
     }
     const nextSong = () => {
         if (currentIndex+1>data.length-1){
@@ -89,16 +94,14 @@ const MusicPlayer = () =>{
     return (
         <div>
             <div className={`
-                ${effect ? 'translate-y-20' : ''}
+                ${expand ? 
+                    'w-[50%] h-[95vh] fixed bottom-0 left-1/2 transform -translate-x-1/2' : 
+                    'w-[80%] h-[60px] fixed bottom-0 left-1/2 transform -translate-x-1/2'}
+                ${shrink ? 'translate-y-20' : ''}
                 duration-300
-                fixed 
-                bottom-0
                 rounded-lg
-                w-[80%] 
-                h-[60px] 
                 flex
                 justify-between
-                left-1/2 transform -translate-x-1/2
                 items-center 
                 px-4 
                 mb-4
@@ -107,7 +110,7 @@ const MusicPlayer = () =>{
                 }>
                 <div className="w-1/4 flex justify-center items-center">
                     <h2 className="font-bold text-xl cursor-pointer hover:border-b-2" 
-                        onClick={()=>console.log('Todo')}>
+                        onClick={handleExpand}>
                             {data[currentIndex].name}
                     </h2>
                 </div>
@@ -158,8 +161,11 @@ const MusicPlayer = () =>{
                         </IconContext.Provider>
                     </button>
                 </div>
-                <div className="hidden md:flex">
-                    <button className="flex hover:rotate-90 duration-300" onClick={handleShrink}>
+                <div>
+                    <button className={`
+                        ${expand ? 'hidden' : 'flex'}
+                        hover:rotate-90 
+                        duration-300`} onClick={handleShrink}>
                         <IconContext.Provider value={{size:"2em",color: "white"}}>
                             <GoTriangleRight/>
                         </IconContext.Provider>
@@ -168,12 +174,11 @@ const MusicPlayer = () =>{
             </div>
             {/* smaller music player */}
             <div className={`
-                hidden
-                md:flex 
+                flex 
                 fixed 
                 top-[35%] 
                 right-0 
-                ${!effect ? 'translate-x-20' : ''}
+                ${!shrink ? 'translate-x-20' : ''}
                 duration-300`}>
                 <div className={`
                 w-[160px] 
