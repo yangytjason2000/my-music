@@ -7,7 +7,10 @@ module.exports = {
     extend: {
       borderRadius: {
         'xl': '1.5rem'
-      }
+      },
+      fontFamily: {
+        poppins: ['Poppins', 'sans-serif'],
+      },
     },
   },
   plugins: [],

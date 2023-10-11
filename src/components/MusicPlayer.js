@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"; 
 import useSound from "use-sound"; // for handling the sound
-import { AiFillPlayCircle, AiFillPauseCircle } from "react-icons/ai"; // icons for play and pause
+import { AiFillPlayCircle, AiFillPauseCircle} from "react-icons/ai"; // icons for play and pause
 import { BiSkipNext, BiSkipPrevious } from "react-icons/bi"; // icons for next and previous track
+import { GoTriangleRight} from "react-icons/go"
 import { IconContext } from "react-icons"; 
 import data from "../data/data";
 
@@ -9,6 +10,7 @@ const MusicPlayer = () =>{
     const [isPlaying, setIsPlaying] = useState(false);
     const [play,{pause,duration,sound}] = useSound(data[0].source);
     const [currentIndex, setCurrIndex] = useState(0);
+    const [effect,setEffect] = useState(false);
 
     const [time, setTime] = useState({
         min: "",
@@ -64,8 +66,11 @@ const MusicPlayer = () =>{
         }
     }
 
+    const handleShrink  = () => {
+        setEffect(effect=>!effect);
+    }
     const nextSong = () => {
-        if (currentIndex+1<data.length-1){
+        if (currentIndex+1>data.length-1){
             setCurrIndex(index=>index+1);
         }
         else {
@@ -82,70 +87,126 @@ const MusicPlayer = () =>{
         }
     }
     return (
-        <div className={`
-            fixed 
-            bottom-0
-            rounded-xl
-            w-[500px] 
-            h-[80px] 
-            flex
-            justify-between
-            left-1/2 transform -translate-x-1/2
-            items-center 
-            px-4 
-            mb-4
-            bg-black 
-            text-white`
-            }>
-            <div className="w-1/4 flex justify-center items-center">
-                <h2 className="font-bold text-xl">{data[currentIndex].name}</h2>
-            </div>
-
-            <div className="w-1/3"> 
-                <div className="flex justify-between">
-                    <p>
-                        {currTime.min}:{currTime.sec}
-                    </p>
-                    <p>
-                        {time.min}:{time.sec}
-                    </p>
+        <div>
+            <div className={`
+                ${effect ? 'translate-y-20' : ''}
+                duration-300
+                fixed 
+                bottom-0
+                rounded-lg
+                w-[80%] 
+                h-[60px] 
+                flex
+                justify-between
+                left-1/2 transform -translate-x-1/2
+                items-center 
+                px-4 
+                mb-4
+                bg-gray-800
+                text-white`
+                }>
+                <div className="w-1/4 flex justify-center items-center">
+                    <h2 className="font-bold text-xl cursor-pointer hover:border-b-2" 
+                        onClick={()=>console.log('Todo')}>
+                            {data[currentIndex].name}
+                    </h2>
                 </div>
-                <input
-                className="w-full"
-                type="range"
-                min="0"
-                max={duration / 1000}
-                default="0"
-                value={seconds}
-                onChange={(e) => {
-                    sound.seek([e.target.value]);
-                }}
-                />
+
+                <div className="w-[50%]"> 
+                    <div className="flex justify-between">
+                        <p>
+                            {currTime.min}:{currTime.sec}
+                        </p>
+                        <p>
+                            {time.min}:{time.sec}
+                        </p>
+                    </div>
+                    <input
+                    className="w-full"
+                    type="range"
+                    min="0"
+                    max={duration / 1000}
+                    default="0"
+                    value={seconds}
+                    onChange={(e) => {
+                        sound.seek([e.target.value]);
+                    }}
+                    />
+                </div>
+                <div className="items-center flex">
+                    <button onClick={lastSong}>
+                        <IconContext.Provider value={{ size: "3em", color: "#27AE60" }}>
+                            <BiSkipPrevious />
+                        </IconContext.Provider>
+                    </button>
+                    {!isPlaying ? (
+                    <button onClick={playingButton}>
+                        <IconContext.Provider value={{ size: "2.5em", color: "#27AE60" }}>
+                            <AiFillPlayCircle />
+                        </IconContext.Provider>
+                    </button>
+                    ) : (
+                    <button onClick={playingButton}>
+                        <IconContext.Provider value={{ size: "2.5em", color: "#27AE60" }}>
+                            <AiFillPauseCircle />
+                        </IconContext.Provider>
+                    </button>
+                    )}
+                    <button onClick={nextSong}>
+                        <IconContext.Provider value={{ size: "3em", color: "#27AE60" }}>
+                            <BiSkipNext />
+                        </IconContext.Provider>
+                    </button>
+                </div>
+                <div className="hidden md:flex">
+                    <button className="flex hover:rotate-90 duration-300" onClick={handleShrink}>
+                        <IconContext.Provider value={{size:"2em",color: "white"}}>
+                            <GoTriangleRight/>
+                        </IconContext.Provider>
+                    </button>
+                </div>
             </div>
-            <div>
-                <button onClick={lastSong}>
-                    <IconContext.Provider value={{ size: "3em", color: "#27AE60" }}>
-                        <BiSkipPrevious />
-                    </IconContext.Provider>
-                </button>
-                {!isPlaying ? (
-                <button onClick={playingButton}>
-                    <IconContext.Provider value={{ size: "3em", color: "#27AE60" }}>
-                        <AiFillPlayCircle />
-                    </IconContext.Provider>
-                </button>
-                ) : (
-                <button onClick={playingButton}>
-                    <IconContext.Provider value={{ size: "3em", color: "#27AE60" }}>
-                        <AiFillPauseCircle />
-                    </IconContext.Provider>
-                </button>
-                )}
-                <button onClick={nextSong}>
-                    <IconContext.Provider value={{ size: "3em", color: "#27AE60" }}>
-                        <BiSkipNext />
-                    </IconContext.Provider>
-                </button>
+            {/* smaller music player */}
+            <div className={`
+                hidden
+                md:flex 
+                fixed 
+                top-[35%] 
+                right-0 
+                ${!effect ? 'translate-x-20' : ''}
+                duration-300`}>
+                <div className={`
+                w-[160px] 
+                h-[60px] 
+                flex 
+                justify-between 
+                items-center 
+                mr-[-100px]
+                hover:mr-[-10px]
+                duration-300
+                bg-gray-800
+                rounded-lg`}>
+                    <div className='flex justify-between items-center w-full text-white'>
+                        {!isPlaying ? (
+                        <button className="pl-2" onClick={playingButton}>
+                            <IconContext.Provider value={{ size: "2.5em", color: "#27AE60" }}>
+                                <AiFillPlayCircle />
+                            </IconContext.Provider>
+                        </button>
+                        ) : (
+                        <button className="pl-2" onClick={playingButton}>
+                            <IconContext.Provider value={{ size: "2.5em", color: "#27AE60" }}>
+                                <AiFillPauseCircle />
+                            </IconContext.Provider>
+                        </button>
+                        )}
+                        <button className="pr-4" onClick={handleShrink}>
+                            <IconContext.Provider value={{ size: "2.5em", color: "white" }}>
+                                <GoTriangleRight />
+                            </IconContext.Provider>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

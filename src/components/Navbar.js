@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {FaBars, FaTimes} from 'react-icons/fa';
-import logo from '../assets/logo.png'
+import logo from '../assets/logo2.png'
 
 const Navbar = () => {
     const [navVisible,setNavVisible] = useState(false);
@@ -9,15 +9,21 @@ const Navbar = () => {
     }
     return (
         <div className={`
+            left-1/2 transform -translate-x-1/2
             fixed 
-            w-full 
+            w-[98%]
             h-[100px] 
             flex 
             justify-between 
             items-center 
-            px-4 
-            bg-[#3f80e1] 
-            text-gray-800`}>
+            px-4
+            mt-3
+            bg-[#121212] 
+            text-white
+            font-poppings
+            rounded-lg
+            `}
+            >
             <div>
                 <img 
                     src={logo} 
@@ -27,7 +33,7 @@ const Navbar = () => {
                 </img>
             </div>
             {/* menu */}
-            <ul className='hidden md:flex'>
+            <ul className='hidden md:flex font-poppins'>
                 <li className='cursor-pointer px-5'>
                     Home
                 </li>
@@ -49,7 +55,7 @@ const Navbar = () => {
                 left-0 
                 w-full 
                 h-screen 
-                bg-[#3f80e1] 
+                bg-black
                 flex 
                 flex-col
                 justify-center
