@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+  db:
+      image: postgres
+      environment:
+        - POSTGRES_DB=postgres
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=passw0rd
+      volumes:
+            - data-volume:/var/lib/postgresql/data
+  web:
+    build: ./web-app
+    env_file:
+      - callback.env
+    user: nobody
+    command: /code/startserver.sh
+    volumes:
+      - ./web-app:/code
+    expose:
+      - "8000"
+    depends_on:
+      - db
+  nginx:
+     image: nginx:latest
+     ports:
+       - "8000:8000"
+      #  - "8888:8888"
+     volumes:
+       - ./nginx/config:/etc/nginx/conf.d
+     depends_on:
+       - web
+  
+  # only for testing purposes, allow you to contact the db directly
+  adminer:
+      image: adminer
+      restart: always
+      ports:
+        - "8080:8080"
+      # expose:
+      #   - "8080"
+      depends_on:
+        - web
+volumes:
+   data-volume:

@@ -1,0 +1,8 @@
+Django>=4.0
+psycopg2
+django-rest-swagger
+djangorestframework
+drf-yasg
+python-dotenv
+django-bootstrap-v5
+crispy-bootstrap5
