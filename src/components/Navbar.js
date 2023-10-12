@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import {FaBars, FaTimes} from 'react-icons/fa';
+import { AiOutlineHome } from 'react-icons/ai';
+import { MdOutlineContactSupport } from 'react-icons/md';
+import { FiUpload } from 'react-icons/fi';
 import logo from '../assets/logo2.png'
 import { Link } from 'react-router-dom';
 const Navbar = () => {
@@ -35,15 +38,18 @@ const Navbar = () => {
             {/* menu */}
             <ul className='hidden md:flex font-poppins'>
                 <Link to='/'>
-                    <li className='cursor-pointer px-5'>
+                    <li className='flex gap-1 items-center cursor-pointer px-5'>
+                        <AiOutlineHome/>
                         Home
                     </li>
                 </Link>
-                <li className='cursor-pointer px-5'>
+                <li className='flex gap-1 items-center cursor-pointer px-5'>
+                    <FiUpload/>
                     Upload
                 </li>
                 <Link to='/contact'>
-                    <li className='cursor-pointer px-5'>
+                    <li className='flex gap-1 items-center cursor-pointer px-5'>
+                        <MdOutlineContactSupport/>
                         Contact
                     </li>
                 </Link>
