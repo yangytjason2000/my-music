@@ -45,7 +45,7 @@ const Home = () => {
                                 h-[200px]
                                 `}>
                                 <span>
-                                <IconContext.Provider value={{ size: "3em", color: "#27AE60" }}>
+                                <IconContext.Provider value={{ size: "5em", color: "#27AE60" }}>
                                     <BiSolidAlbum />
                                 </IconContext.Provider>
                                 </span>
