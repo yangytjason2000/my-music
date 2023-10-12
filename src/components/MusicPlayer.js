@@ -1,69 +1,90 @@
-import { useEffect, useState } from "react"; 
-import useSound from "use-sound"; // for handling the sound
+import { useCallback, useEffect, useState } from "react"; 
+import { Howl } from 'howler';// for handling the sound
 import { AiFillPlayCircle, AiFillPauseCircle} from "react-icons/ai"; // icons for play and pause
 import { BiSkipNext, BiSkipPrevious } from "react-icons/bi"; // icons for next and previous track
 import { GoTriangleRight} from "react-icons/go"
-import { IconContext } from "react-icons"; 
-import data from "../data/data";
+import { IconContext } from "react-icons";
+import { useSelector } from "react-redux";
 
 const MusicPlayer = () =>{
+    const songList = useSelector((state)=>state.songList.songList); 
     const [isPlaying, setIsPlaying] = useState(false);
-    const [play,{pause,duration,sound}] = useSound(data[0].source);
+    const [sound, setSound] = useState(null);
     const [currentIndex, setCurrIndex] = useState(0);
     const [shrink,setShrink] = useState(false);
     const [expand,setExpand] = useState(false);
-
     const [time, setTime] = useState({
-        min: "",
-        sec: ""
+        min: "0",
+        sec: "00"
     });
 
     const [currTime,setCurrTime] = useState({
-        min: "",
-        sec: "",
+        min: "0",
+        sec: "00",
     });
 
     const [seconds,setSeconds] = useState(0);
+    // load the song into sound
+    const playSong = useCallback((src) => {
+        if (sound) {
+            sound.stop()
+        }
+
+        const howlSound = new Howl({
+            src: [src],
+            onPlay: () => setIsPlaying(true),
+            onend: () => setIsPlaying(false),
+            onload: () => {
+                setTime({
+                    min: Math.floor(howlSound.duration() / 60),
+                    sec: formatTime(Math.floor(howlSound.duration() % 60)),
+                })
+            }
+        });
+        setSound(howlSound);
+    },[sound])
+
+    /* eslint-disable react-hooks/exhaustive-deps */
+    useEffect(()=>{
+        if (songList.length>0) {
+            playSong(songList[currentIndex].source)
+        }
+        return () => {
+            if (sound) {
+                sound.stop();
+            }
+        };
+    },[songList, currentIndex])
+    /* eslint-disable react-hooks/exhaustive-deps */
 
     function formatTime(value) {
         return String(value).padStart(2, '0');
     }
-
-    useEffect(() => {
-        if (duration) {
-          const sec = duration / 1000;
-          const min = Math.floor(sec / 60);
-          const secRemain = Math.floor(sec % 60);
-          setTime({
-            min: min,
-            sec: formatTime(secRemain),
-          });
-        }
-      }, [duration]);
-
+    // update the current time
     useEffect(() => {
         const interval = setInterval(() => {
-          if (sound) {
-            setSeconds(sound.seek([])); // setting the seconds state with the current state
-            const min = Math.floor(sound.seek([]) / 60);
-            const sec = Math.floor(sound.seek([]) % 60);
+          if (sound && isPlaying) {
+            const currentTime = sound.seek();
+            setSeconds(currentTime); // setting the seconds state with the current state
             setCurrTime({
-              min: min,
-              sec: formatTime(sec),
+              min: Math.floor(currentTime / 60),
+              sec: formatTime(Math.floor(currentTime % 60)),
             });
           }
         }, 1000);
         return () => clearInterval(interval);
-    }, [sound]);
+    }, [sound, isPlaying]);
 
     const playingButton = () =>{
-        if (isPlaying){
-            pause();
-            setIsPlaying(false);
-        }
-        else {
-            play();
-            setIsPlaying(true);
+        if (sound){
+            if (isPlaying){
+                sound.pause();
+                setIsPlaying(false);
+            }
+            else {
+                sound.play();
+                setIsPlaying(true);
+            }
         }
     }
 
@@ -75,22 +96,26 @@ const MusicPlayer = () =>{
         setExpand(expand=>!expand);
     }
     const nextSong = () => {
-        if (currentIndex+1>data.length-1){
-            setCurrIndex(index=>index+1);
+        const nextIndex = (currentIndex + 1) % songList.length;
+        if (nextIndex!==currentIndex){
+            setCurrTime({
+                min: "0",
+                sec: "00",
+            });
         }
-        else {
-            setCurrIndex(0);
-        }
-    }
-
+        setCurrIndex(nextIndex);
+    };
+    
     const lastSong = () => {
-        if (currentIndex-1<0){
-            setCurrIndex(index=>index-1);
+        const prevIndex = (currentIndex - 1 + songList.length) % songList.length;
+        if (prevIndex!==currentIndex){
+            setCurrTime({
+                min: "0",
+                sec: "00",
+            });
         }
-        else {
-            setCurrIndex(0);
-        }
-    }
+        setCurrIndex(prevIndex);
+    };
     return (
         <div>
             <div className={`
@@ -111,7 +136,7 @@ const MusicPlayer = () =>{
                 <div className="w-1/4 flex justify-center items-center">
                     <h2 className="font-bold text-xl cursor-pointer hover:border-b-2" 
                         onClick={handleExpand}>
-                            {data[currentIndex].name}
+                            {songList.length ? songList[currentIndex].name : ''}
                     </h2>
                 </div>
 
@@ -125,15 +150,17 @@ const MusicPlayer = () =>{
                         </p>
                     </div>
                     <input
-                    className="w-full"
-                    type="range"
-                    min="0"
-                    max={duration / 1000}
-                    default="0"
-                    value={seconds}
-                    onChange={(e) => {
-                        sound.seek([e.target.value]);
-                    }}
+                        className="w-full"
+                        type="range"
+                        min="0"
+                        max={time? 0 : time.min * 60 + parseInt(time.sec, 10)}
+                        default="0"
+                        value={seconds}
+                        onChange={(e) => {
+                            if (sound) {
+                                sound.seek([e.target.value]);
+                            }
+                        }}
                     />
                 </div>
                 <div className="items-center flex">
