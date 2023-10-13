@@ -6,15 +6,17 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router } from "react-router-dom";
 import store from './store';
 import { Provider } from "react-redux";
-
+import { ExpandProvider } from './context/ExpandProvider';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
-      <Router>
-        <App />
-      </Router>
-    </Provider>
+    <ExpandProvider>
+      <Provider store={store}>
+        <Router>
+          <App />
+        </Router>
+      </Provider>
+    </ExpandProvider>
   </React.StrictMode>
 );
 

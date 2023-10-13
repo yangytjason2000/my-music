@@ -5,14 +5,13 @@ import { BiSkipNext, BiSkipPrevious } from "react-icons/bi"; // icons for next a
 import { GoTriangleRight} from "react-icons/go"
 import { IconContext } from "react-icons";
 import { useSelector } from "react-redux";
-
+import { useExpand } from "../context/ExpandProvider";
 const MusicPlayer = () =>{
     const songList = useSelector((state)=>state.songList.songList); 
     const [isPlaying, setIsPlaying] = useState(false);
     const [sound, setSound] = useState(null);
     const [currentIndex, setCurrIndex] = useState(0);
-    const [shrink,setShrink] = useState(false);
-    const [expand,setExpand] = useState(false);
+    const {expand,setExpand} = useExpand();
     const [time, setTime] = useState({
         min: "0",
         sec: "00"
@@ -88,13 +87,10 @@ const MusicPlayer = () =>{
         }
     }
 
-    const handleShrink  = () => {
-        setShrink(shrink=>!shrink);
-    }
-
     const handleExpand = () => {
         setExpand(expand=>!expand);
     }
+    
     const nextSong = () => {
         const nextIndex = (currentIndex + 1) % songList.length;
         if (nextIndex!==currentIndex){
@@ -121,10 +117,8 @@ const MusicPlayer = () =>{
     return (
         <div>
             <div className={`
-                ${expand ? 
-                    'w-[50%] h-[95vh] fixed bottom-0 left-1/2 transform -translate-x-1/2' : 
-                    'w-[80%] h-[60px] fixed bottom-0 left-1/2 transform -translate-x-1/2'}
-                ${shrink ? 'translate-y-20' : ''}
+                w-[80%] h-[60px] fixed bottom-0 left-1/2 transform -translate-x-1/2
+                ${!expand ? 'translate-y-20' : ''}
                 duration-300
                 rounded-lg
                 flex
@@ -136,8 +130,7 @@ const MusicPlayer = () =>{
                 text-white`
                 }>
                 <div className="w-1/4 flex justify-center items-center">
-                    <h2 className="font-bold text-xl cursor-pointer hover:border-b-2" 
-                        onClick={handleExpand}>
+                    <h2 className="font-bold text-xl cursor-pointer hover:border-b-2" >
                             {songList.length ? songList[currentIndex].name : ''}
                     </h2>
                 </div>
@@ -193,9 +186,9 @@ const MusicPlayer = () =>{
                 </div>
                 <div>
                     <button className={`
-                        ${expand ? 'hidden' : 'flex'}
+                        flex
                         hover:rotate-90 
-                        duration-300`} onClick={handleShrink}>
+                        duration-300`} onClick={handleExpand}>
                         <IconContext.Provider value={{size:"2em",color: "white"}}>
                             <GoTriangleRight/>
                         </IconContext.Provider>
@@ -208,7 +201,7 @@ const MusicPlayer = () =>{
                     fixed 
                     top-[35%] 
                     right-0 
-                    ${!shrink ? 'translate-x-20' : ''}
+                    ${expand ? 'translate-x-20' : ''}
                     duration-300`}
                 >
                 <div className={`
@@ -237,7 +230,7 @@ const MusicPlayer = () =>{
                             </IconContext.Provider>
                         </button>
                         )}
-                        <button className="pr-4" onClick={handleShrink}>
+                        <button className="pr-4" onClick={handleExpand}>
                             <IconContext.Provider value={{ size: "2.5em", color: "white" }}>
                                 <GoTriangleRight />
                             </IconContext.Provider>

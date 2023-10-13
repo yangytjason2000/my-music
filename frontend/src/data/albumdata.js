@@ -1,19 +1,23 @@
 const data = [
     {
         id:1,
-        name: 'Intro',
+        name: 'Debut album',
+        author: 'Yutao Yang',
     },
     {
         id:2,
-        name: 'However',
+        name: 'Second Album',
+        author: 'Yutao Yang',
     },
     {
         id:3,
-        name: '3'
+        name: 'Third Album',
+        author: 'Yutao Yang',
     },
     {
         id:4,
-        name: '4'
+        name: 'Fourth Album',
+        author: 'Yutao Yang',
     },
 ]
 

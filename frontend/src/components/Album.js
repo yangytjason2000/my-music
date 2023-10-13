@@ -1,21 +1,33 @@
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { changeSongList } from '../reducers/songListReducer';
-import data from '../data/data';
-import { IoIosAlbums } from 'react-icons/io';
+import { BiSolidAlbum } from 'react-icons/bi';
 import { MdAdd } from 'react-icons/md'
 import { IconContext } from "react-icons";
-import albumData from '../data/albumdata';
-import { Link } from 'react-router-dom';
+import { useSelector } from "react-redux";
+import { useParams } from 'react-router-dom';
 import { useExpand } from '../context/ExpandProvider';
+const Album = () => {
+    const songList = useSelector((state)=>state.songList.songList); 
+    const {expand, setExpand} = useExpand();
+    const {id} = useParams();
+    console.log(id);
+    // Retrieve the data for the ablum by id
+    // const [ablum,setAlbum] = useState([]);
+    
+    // useEffect(() => {
+    //     const fetchAlbum = async () => {
+    //         try {
+    //             const res = await getAlbumById(id); 
+    //             if (!res.ok){
+    //                 throw new Error('Internal Server Error');
+    //             }
+    //             const albumData = await res.json(); 
+    //             setAlbum(albumData);
+    //         } catch (error) {
+    //             console.error("Failed to fetch album:", error);
+    //         }
+    //     };
 
-const Home = () => {
-    const dispatch = useDispatch();
-    useEffect(()=>{
-        dispatch(changeSongList(data))
-    },[dispatch])
-
-    const {expand,setExpand} = useExpand();
+    //     fetchAlbum();
+    // }, [id]);
 
     return (
         <div className=
@@ -33,44 +45,32 @@ const Home = () => {
                 duration-300
             `}>
                 <div className="bg-[#121212] h-full rounded-lg overflow-auto">
-                    <div className='grid sm:grid-cols-1 md:grid-cols-4 gap-4 my-2 mx-2'>
-                        {albumData.map((album)=>{
+                    <div className='grid sm:grid-cols-1 md:grid-cols-1 gap-4 my-2 mx-4'>
+                        {songList.map((song)=>{
                             return (
-                            <Link key={album.id} to={`/album/${album.id}`}>
                             <div
+                                key = {song.id}
                                 className={`
                                 bg-white
                                 shadow-lg 
                                 container 
                                 rounded-md 
-                                flex
-                                flex-col
+                                flex 
                                 mx-auto
                                 justify-center 
                                 items-center
                                 text-center
-                                h-[200px]
+                                h-[100px]
                                 hover:scale-[102%]
                                 duration-300
                                 `}>
-                                <div className='flex flex-col justify-center items-center'>
-                                    <span>
-                                    <IconContext.Provider 
-                                        value={{ size: "5em", color: "#27AE60" }}>
-                                        <IoIosAlbums/>
-                                    </IconContext.Provider>
-                                    </span>
-                                    <h2 className='text-black font-serif font-bold text-md'>
-                                        {album.name}
-                                    </h2>
-                                    {album.author &&
-                                        <p className='text-black font-serif text-sm'>
-                                            {album.author}
-                                        </p>
-                                    }
-                                </div>
+                                <span>
+                                <IconContext.Provider 
+                                    value={{ size: "5em", color: "#27AE60" }}>
+                                    <BiSolidAlbum/>
+                                </IconContext.Provider>
+                                </span>
                             </div>
-                            </Link>
                             )})
                         }
                         <div
@@ -84,7 +84,7 @@ const Home = () => {
                                 justify-center 
                                 items-center
                                 text-center
-                                h-[200px]
+                                h-[100px]
                             `}>
                             <span className='hover:scale-[110%] duration-300 cursor-pointer'>
                                 <IconContext.Provider value={{ size: "5em", color: "gray" }}>
@@ -99,4 +99,4 @@ const Home = () => {
     );
 }
 
-export default Home;
+export default Album;

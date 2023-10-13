@@ -6,16 +6,19 @@ const data = [
         id:1,
         name: 'Intro',
         source: Intro,
+        author: 'Yutao Yang',
     },
     {
         id:2,
         name: 'However',
         source: However,
+        author: 'Yutao Yang',
     },
     {
         id:3,
         name: 'BringBack',
         source: BringBack,
+        author: 'Yutao Yang',
     },
 ]
 
