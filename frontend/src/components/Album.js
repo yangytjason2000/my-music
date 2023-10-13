@@ -8,7 +8,6 @@ const Album = () => {
     const songList = useSelector((state)=>state.songList.songList); 
     const {expand, setExpand} = useExpand();
     const {id} = useParams();
-    console.log(id);
     // Retrieve the data for the ablum by id
     // const [ablum,setAlbum] = useState([]);
     
@@ -45,7 +44,7 @@ const Album = () => {
                 duration-300
             `}>
                 <div className="bg-[#121212] h-full rounded-lg overflow-auto">
-                    <div className='grid sm:grid-cols-1 md:grid-cols-1 gap-4 my-2 mx-4'>
+                    <div className='grid sm:grid-cols-1 md:grid-cols-1 gap-4 my-2 mx-4 w-[70%]'>
                         {songList.map((song)=>{
                             return (
                             <div

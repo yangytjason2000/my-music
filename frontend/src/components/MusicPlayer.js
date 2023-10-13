@@ -7,11 +7,13 @@ import { IconContext } from "react-icons";
 import { useSelector } from "react-redux";
 import { AiOutlineUnorderedList } from 'react-icons/ai';
 import { useExpand } from "../context/ExpandProvider";
+import MusicPlayerList from "./MusicPlayerList";
 const MusicPlayer = () =>{
     const songList = useSelector((state)=>state.songList.songList); 
     const [isPlaying, setIsPlaying] = useState(false);
     const [sound, setSound] = useState(null);
     const [currentIndex, setCurrIndex] = useState(0);
+    const [showList,setShowList] = useState(false);
     const {expand,setExpand} = useExpand();
     const [time, setTime] = useState({
         min: "0",
@@ -24,6 +26,16 @@ const MusicPlayer = () =>{
     });
 
     const [seconds,setSeconds] = useState(0);
+
+    const changeCurrentIndex = useCallback((index) => {
+        setCurrIndex(index);
+        setIsPlaying(true);
+        setCurrTime({
+            min: "0",
+            sec: "00",
+        });
+        setSeconds(0);
+    }, []);
     // load the song into sound
     const nextSong = useCallback(() => {
         const nextIndex = (currentIndex + 1) % songList.length;
@@ -138,6 +150,12 @@ const MusicPlayer = () =>{
                     </h2>
                 </div>
 
+                <MusicPlayerList 
+                    isOpen={showList} 
+                    currentIndex={currentIndex}
+                    changeSong={changeCurrentIndex}
+                />
+
                 <div className="w-[50%]"> 
                     <div className="flex justify-between">
                         <p>
@@ -188,10 +206,13 @@ const MusicPlayer = () =>{
                     </button>
                 </div>
                 <div className="flex gap-2 items-center">
-                    <button className={`
+                    <button 
+                        onClick={()=>setShowList(showList=>!showList)}
+                        className={`
                         flex
                     `}>
-                        <IconContext.Provider value={{size:"2em",color: "white"}}>
+                        <IconContext.Provider 
+                            value={{size:"2em",color: "white"}}>
                             <AiOutlineUnorderedList/>
                         </IconContext.Provider>
                     </button>
