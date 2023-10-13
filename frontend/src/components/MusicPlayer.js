@@ -5,6 +5,7 @@ import { BiSkipNext, BiSkipPrevious } from "react-icons/bi"; // icons for next a
 import { GoTriangleRight} from "react-icons/go"
 import { IconContext } from "react-icons";
 import { useSelector } from "react-redux";
+import { AiOutlineUnorderedList } from 'react-icons/ai';
 import { useExpand } from "../context/ExpandProvider";
 const MusicPlayer = () =>{
     const songList = useSelector((state)=>state.songList.songList); 
@@ -24,6 +25,29 @@ const MusicPlayer = () =>{
 
     const [seconds,setSeconds] = useState(0);
     // load the song into sound
+    const nextSong = useCallback(() => {
+        const nextIndex = (currentIndex + 1) % songList.length;
+        if (nextIndex!==currentIndex){
+            setCurrTime({
+                min: "0",
+                sec: "00",
+            });
+            setSeconds(0);
+        }
+        setCurrIndex(nextIndex);
+    },[songList,currentIndex])
+    
+    const lastSong = () => {
+        const prevIndex = (currentIndex - 1 + songList.length) % songList.length;
+        if (prevIndex!==currentIndex){
+            setCurrTime({
+                min: "0",
+                sec: "00",
+            });
+            setSeconds(0);
+        }
+        setCurrIndex(prevIndex);
+    };
     const playSong = useCallback((src) => {
         if (sound) {
             sound.stop()
@@ -32,7 +56,7 @@ const MusicPlayer = () =>{
         const howlSound = new Howl({
             src: [src],
             onPlay: () => setIsPlaying(true),
-            onend: () => setIsPlaying(false),
+            onend: () => nextSong(),
             onload: () => {
                 setTime({
                     min: Math.floor(howlSound.duration() / 60),
@@ -41,7 +65,10 @@ const MusicPlayer = () =>{
             }
         });
         setSound(howlSound);
-    },[sound])
+        if (isPlaying) {
+            howlSound.play();
+        }
+    },[sound,isPlaying,nextSong])
 
     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(()=>{
@@ -90,30 +117,6 @@ const MusicPlayer = () =>{
     const handleExpand = () => {
         setExpand(expand=>!expand);
     }
-    
-    const nextSong = () => {
-        const nextIndex = (currentIndex + 1) % songList.length;
-        if (nextIndex!==currentIndex){
-            setCurrTime({
-                min: "0",
-                sec: "00",
-            });
-            setSeconds(0);
-        }
-        setCurrIndex(nextIndex);
-    };
-    
-    const lastSong = () => {
-        const prevIndex = (currentIndex - 1 + songList.length) % songList.length;
-        if (prevIndex!==currentIndex){
-            setCurrTime({
-                min: "0",
-                sec: "00",
-            });
-            setSeconds(0);
-        }
-        setCurrIndex(prevIndex);
-    };
     return (
         <div>
             <div className={`
@@ -129,7 +132,7 @@ const MusicPlayer = () =>{
                 bg-gray-800
                 text-white`
                 }>
-                <div className="w-1/4 flex justify-center items-center">
+                <div className="w-1/5 flex justify-center items-center">
                     <h2 className="font-bold text-xl cursor-pointer hover:border-b-2" >
                             {songList.length ? songList[currentIndex].name : ''}
                     </h2>
@@ -184,7 +187,14 @@ const MusicPlayer = () =>{
                         </IconContext.Provider>
                     </button>
                 </div>
-                <div>
+                <div className="flex gap-2 items-center">
+                    <button className={`
+                        flex
+                    `}>
+                        <IconContext.Provider value={{size:"2em",color: "white"}}>
+                            <AiOutlineUnorderedList/>
+                        </IconContext.Provider>
+                    </button>
                     <button className={`
                         flex
                         hover:rotate-90 
