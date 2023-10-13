@@ -43,29 +43,32 @@ const Home = () => {
                                 items-center
                                 text-center
                                 h-[200px]
+                                hover:scale-[102%]
+                                duration-300
                                 `}>
                                 <span>
-                                <IconContext.Provider value={{ size: "5em", color: "#27AE60" }}>
-                                    <BiSolidAlbum />
+                                <IconContext.Provider 
+                                    value={{ size: "5em", color: "#27AE60" }}>
+                                    <BiSolidAlbum/>
                                 </IconContext.Provider>
                                 </span>
                             </div>)})
                         }
                         <div
                             className={`
-                            bg-white
-                            shadow-lg 
-                            container 
-                            rounded-md 
-                            flex 
-                            mx-auto
-                            justify-center 
-                            items-center
-                            text-center
-                            h-[200px]
+                                bg-white
+                                shadow-lg 
+                                container 
+                                rounded-md 
+                                flex 
+                                mx-auto
+                                justify-center 
+                                items-center
+                                text-center
+                                h-[200px]
                             `}>
-                            <span>
-                                <IconContext.Provider value={{ size: "3em", color: "gray" }}>
+                            <span className='hover:scale-[110%] duration-300 cursor-pointer'>
+                                <IconContext.Provider value={{ size: "5em", color: "gray" }}>
                                     <MdAdd />
                                 </IconContext.Provider>
                             </span>

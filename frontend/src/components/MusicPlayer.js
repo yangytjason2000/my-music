@@ -102,6 +102,7 @@ const MusicPlayer = () =>{
                 min: "0",
                 sec: "00",
             });
+            setSeconds(0);
         }
         setCurrIndex(nextIndex);
     };
@@ -113,6 +114,7 @@ const MusicPlayer = () =>{
                 min: "0",
                 sec: "00",
             });
+            setSeconds(0);
         }
         setCurrIndex(prevIndex);
     };
@@ -153,12 +155,13 @@ const MusicPlayer = () =>{
                         className="w-full"
                         type="range"
                         min="0"
-                        max={time? 0 : time.min * 60 + parseInt(time.sec, 10)}
+                        max={time.min * 60 + parseInt(time.sec, 10)}
                         default="0"
                         value={seconds}
                         onChange={(e) => {
+                            const seekValue = parseInt(e.target.value, 10);
                             if (sound) {
-                                sound.seek([e.target.value]);
+                                sound.seek(seekValue);
                             }
                         }}
                     />
@@ -201,23 +204,25 @@ const MusicPlayer = () =>{
             </div>
             {/* smaller music player */}
             <div className={`
-                flex 
-                fixed 
-                top-[35%] 
-                right-0 
-                ${!shrink ? 'translate-x-20' : ''}
-                duration-300`}>
+                    flex 
+                    fixed 
+                    top-[35%] 
+                    right-0 
+                    ${!shrink ? 'translate-x-20' : ''}
+                    duration-300`}
+                >
                 <div className={`
-                w-[160px] 
-                h-[60px] 
-                flex 
-                justify-between 
-                items-center 
-                mr-[-100px]
-                hover:mr-[-10px]
-                duration-300
-                bg-gray-800
-                rounded-lg`}>
+                    w-[160px] 
+                    h-[60px] 
+                    flex 
+                    justify-between 
+                    items-center 
+                    mr-[-100px]
+                    hover:mr-[-10px]
+                    duration-300
+                    bg-gray-800
+                    rounded-lg`}
+                >
                     <div className='flex justify-between items-center w-full text-white'>
                         {!isPlaying ? (
                         <button className="pl-2" onClick={playingButton}>
