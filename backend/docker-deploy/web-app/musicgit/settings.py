@@ -32,13 +32,22 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:8000','http://vcm-32439.vm.duke.edu:80
 # Application definition
 
 INSTALLED_APPS = [
+    'musicgitapp.apps.MusicgitappConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'drf_yasg',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
