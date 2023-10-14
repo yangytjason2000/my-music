@@ -15,7 +15,7 @@ const Home = () => {
         dispatch(changeSongList(data))
     },[dispatch])
 
-    const {expand,setExpand} = useExpand();
+    const {expand} = useExpand();
 
     return (
         <div className=
@@ -64,7 +64,7 @@ const Home = () => {
                                         {album.name}
                                     </h2>
                                     {album.author &&
-                                        <p className='text-black font-serif text-sm'>
+                                        <p className='text-black font-serif text-sm border-black hover:border-b-2'>
                                             {album.author}
                                         </p>
                                     }

@@ -7,18 +7,21 @@ const data = [
         name: 'Intro',
         source: Intro,
         author: 'Yutao Yang',
+        album: 1,
     },
     {
         id:2,
         name: 'However',
         source: However,
         author: 'Yutao Yang',
+        album: 1,
     },
     {
         id:3,
         name: 'BringBack',
         source: BringBack,
         author: 'Yutao Yang',
+        album: 1,
     },
 ]
 

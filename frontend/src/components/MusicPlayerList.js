@@ -4,11 +4,12 @@ import { BiBarChart } from "react-icons/bi"
 import { AiFillPlayCircle} from "react-icons/ai";
 import {BsThreeDots} from "react-icons/bs";
 import React from "react";
+import { Link } from "react-router-dom";
 const MusicPlayerList = ({isOpen,currentIndex,changeSong}) => {
     const songList = useSelector((state)=>state.songList.songList); 
     return (
         <div className={`
-            ${isOpen ? 'h-[360px]' : 'h-0 pt-0'}
+            ${isOpen ? 'h-[360px] pt-3' : 'h-0 pt-0'}
             bottom-[60px] 
             w-1/3 fixed right-0 
             duration-300
@@ -17,7 +18,6 @@ const MusicPlayerList = ({isOpen,currentIndex,changeSong}) => {
             flex-col
             justify-start
             items-center
-            pt-3
             px-4 
             mb-4
             bg-gray-700
@@ -30,7 +30,6 @@ const MusicPlayerList = ({isOpen,currentIndex,changeSong}) => {
                     <div
                         key = {songId}
                         className={`
-                        bg-white
                         shadow-lg   
                         rounded-md 
                         flex 
@@ -40,14 +39,18 @@ const MusicPlayerList = ({isOpen,currentIndex,changeSong}) => {
                         text-center
                         h-[40px]
                         w-full
+                        hover:scale-[102%]
                         duration-300
                         `}>
                         <div className="ml-1">
-                            <h2 className='text-black font-serif font-bold text-sm cursor-pointer'>
-                                {song.name}
-                            </h2>
+                            <Link to={`album/${song.album}`}>
+                                <h2
+                                    className='text-white font-serif font-bold text-sm cursor-pointer inline hover:border-b-2'>
+                                    {song.name}
+                                </h2>
+                            </Link>
                             {song.author &&
-                                <p className='text-black font-serif text-xs cursor-pointer'>
+                                <p className='text-white font-serif text-xs cursor-pointer hover:border-b-2'>
                                     {song.author}
                                 </p>
                             }
@@ -55,20 +58,20 @@ const MusicPlayerList = ({isOpen,currentIndex,changeSong}) => {
                         <div className="flex justify-center items-center gap-1">
                             {currentIndex===songId? 
                                 <button>
-                                    <IconContext.Provider value={{ size: "2.5em", color: "#27AE60" }}>
+                                    <IconContext.Provider value={{ size: "1.5em", color: "#27AE60" }}>
                                         <BiBarChart/>
                                     </IconContext.Provider>
                                 </button>
                                 :
                                 <button onClick={()=>changeSong(songId)}>
-                                    <IconContext.Provider value={{ size: "2.5em", color: "#27AE60" }}>
+                                    <IconContext.Provider value={{ size: "1.5em", color: "#27AE60" }}>
                                         <AiFillPlayCircle />
                                     </IconContext.Provider>
                                 </button>
                             }   
                             <button>
-                                <IconContext.Provider value={{ size: "1em", color: "black" }}>
-                                    <BsThreeDots/>
+                                <IconContext.Provider value={{ size: "1em", color: "white" }}>
+                                    <BsThreeDots />
                                 </IconContext.Provider>
                             </button>        
                         </div>

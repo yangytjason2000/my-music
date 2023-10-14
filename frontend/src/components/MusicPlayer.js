@@ -128,6 +128,7 @@ const MusicPlayer = () =>{
 
     const handleExpand = () => {
         setExpand(expand=>!expand);
+        setShowList(false);
     }
     return (
         <div>
