@@ -3,7 +3,7 @@ import {FaBars, FaTimes} from 'react-icons/fa';
 import { AiOutlineHome } from 'react-icons/ai';
 import { MdOutlineContactSupport } from 'react-icons/md';
 import { FiUpload } from 'react-icons/fi';
-import logo from '../assets/logo2.png'
+import placeHolder from '../assets/placeholder.png'
 import { Link } from 'react-router-dom';
 const Navbar = () => {
     const [navVisible,setNavVisible] = useState(false);
@@ -29,12 +29,14 @@ const Navbar = () => {
             >
             <div>
                 <Link to='/login'>
+                    {
                     <img 
-                        src={logo} 
-                        alt="logo"
-                        className='cursor-pointer'
-                        style={{width:'150px'}}>
+                        src={placeHolder} 
+                        alt="placehoder"
+                        className='cursor-pointer rounded-full hover:scale-110 duration-300'
+                        style={{width:'70px'}}>
                     </img>
+                    }
                 </Link>
             </div>
             {/* menu */}
