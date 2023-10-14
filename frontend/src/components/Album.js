@@ -47,7 +47,7 @@ const Album = () => {
                 duration-300
             `}>
                 <div className="bg-[#121212] h-full rounded-lg overflow-auto">
-                    <span onClick={()=>navigate(-1)}className='fixed ml-1 mt-1 cursor-pointer'>
+                    <span onClick={()=>navigate(-1)} className='fixed ml-1 mt-1 cursor-pointer'>
                         <IconContext.Provider 
                             value={{ size: "2em", color: "#27AE60" }}>
                             <AiOutlineArrowLeft/>

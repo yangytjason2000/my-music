@@ -28,12 +28,14 @@ const Navbar = () => {
             `}
             >
             <div>
-                <img 
-                    src={logo} 
-                    alt="logo"
-                    className='cursor-pointer'
-                    style={{width:'150px'}}>
-                </img>
+                <Link to='/login'>
+                    <img 
+                        src={logo} 
+                        alt="logo"
+                        className='cursor-pointer'
+                        style={{width:'150px'}}>
+                    </img>
+                </Link>
             </div>
             {/* menu */}
             <ul className='hidden md:flex font-poppins'>

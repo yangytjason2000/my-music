@@ -6,8 +6,9 @@ import Album from './components/Album';
 import MusicPlayer from './components/MusicPlayer';
 import { Route, Routes } from "react-router-dom";
 import Song from './components/Song';
+import Login from './components/Login';
 
-function App() {
+function MainLayout() {
   return (
     <div>
       <Navbar/>
@@ -18,6 +19,17 @@ function App() {
         <Route path='album/:id/:songid' element={<Song/>}/>
       </Routes>
       <MusicPlayer/>
+    </div>
+  )
+}
+
+function App() {
+  return (
+    <div>
+      <Routes>
+        <Route path='*' element={<MainLayout/>}/>
+        <Route path='/login' element={<Login/>}/>
+      </Routes>
     </div>
   );
 }
