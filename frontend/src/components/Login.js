@@ -9,6 +9,50 @@ const Login = () => {
     const navigate = useNavigate();
     const [signIn, setSignIn] = useState(true);
     const [isLoading,setIsLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        setIsLoading(true);
+
+        try {
+            const responseData = await signInUser(email, password);
+            console.log(responseData);
+        } catch (error) {
+            console.error('Error signing in:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+    async function signInUser(email, password) {
+        const apiUrl = 'http://vcm-32439.vm.duke.edu:8000/login/'; 
+        const requestBody = {
+          email: email,
+          password: password,
+        };
+      
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+      
+            if (!response.ok) {
+                throw new Error('Sign-in failed');
+            }
+      
+            const responseData = await response.json();
+            return responseData;
+            } catch (error) {
+                console.error('Error signing in:', error);
+                throw error;
+            }
+    }
+
     return (
     <div className='w-full h-screen bg-black flex flex-col justify-center text-white items-center'>
         <span onClick={()=>navigate(-1)} className='fixed top-0 left-0 ml-1 mt-1 cursor-pointer'>
@@ -24,7 +68,7 @@ const Login = () => {
             }   
         </div>
         <div className="bg-gray-700 px-4 py-4 shadow rounded-lg max-w-md w-full">
-            <form className='flex flex-col w-full text-white'>
+            <form onSubmit={handleSubmit} className='flex flex-col w-full text-white'>
                 {!signIn && <Input id='username' name='Username' type='text'/>}
                 <Input id='email' name='Email Address' type='email'/>
                 <Input id='password' name='Password' type='password'/>
