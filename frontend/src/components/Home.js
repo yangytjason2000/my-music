@@ -8,6 +8,7 @@ import { IconContext } from "react-icons";
 import albumData from '../data/albumdata';
 import { Link } from 'react-router-dom';
 import { useExpand } from '../context/ExpandProvider';
+import AlbumRow from './RowComponent/AlbumRow';
 
 const Home = () => {
     const dispatch = useDispatch();
@@ -36,41 +37,7 @@ const Home = () => {
                     <div className='grid sm:grid-cols-1 md:grid-cols-4 gap-4 my-2 mx-2'>
                         {albumData.map((album)=>{
                             return (
-                            <Link key={album.id} to={`/album/${album.id}`}>
-                            <div
-                                className={`
-                                bg-white
-                                shadow-lg 
-                                container 
-                                rounded-md 
-                                flex
-                                flex-col
-                                mx-auto
-                                justify-center 
-                                items-center
-                                text-center
-                                h-[200px]
-                                hover:scale-[102%]
-                                duration-300
-                                `}>
-                                <div className='flex flex-col justify-center items-center'>
-                                    <span>
-                                    <IconContext.Provider 
-                                        value={{ size: "5em", color: "#27AE60" }}>
-                                        <IoIosAlbums/>
-                                    </IconContext.Provider>
-                                    </span>
-                                    <h2 className='text-black font-serif font-bold text-md'>
-                                        {album.name}
-                                    </h2>
-                                    {album.author &&
-                                        <p className='text-black font-serif text-sm border-black hover:border-b-2'>
-                                            {album.author}
-                                        </p>
-                                    }
-                                </div>
-                            </div>
-                            </Link>
+                                <AlbumRow key={album.id} album={album}/> 
                             )})
                         }
                         <div

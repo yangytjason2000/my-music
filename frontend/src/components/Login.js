@@ -1,14 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IconContext } from "react-icons";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import Button from "./Buttons/button";
-import Input from "./Input"
+import Input from "./Input";
 
 const Login = () => {
     const navigate = useNavigate();
     const [signIn, setSignIn] = useState(true);
     const [isLoading,setIsLoading] = useState(false);
+    const [isSignedIn, setIsSignedIn] = useState(false);
+    const [message,setMessage] = useState('');
+
+    useEffect(()=>{
+        async function fetchStatus(){
+            const apiUrl =process.env.REACT_APP_API_URL+'userstatus/';
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                });
+          
+                if (!response.ok) {
+                    throw new Error('Fetch status failed');
+                }
+          
+                const responseData = await response.json();
+                setIsSignedIn(responseData['status']);
+                } 
+            catch (error) {
+            }
+        }
+        fetchStatus();
+    },[message]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,6 +42,7 @@ const Login = () => {
         try {
             const responseData = await signInUser(email, password);
             console.log(responseData);
+            setMessage(responseData);
         } catch (error) {
             console.error('Error signing in:', error);
         } finally {
@@ -26,7 +50,7 @@ const Login = () => {
         }
     }
     async function signInUser(email, password) {
-        const apiUrl = 'http://vcm-32439.vm.duke.edu:8000/login/'; 
+        const apiUrl =process.env.REACT_APP_API_URL+'login/'; 
         const requestBody = {
           email: email,
           password: password,
@@ -38,6 +62,7 @@ const Login = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: "include",
                 body: JSON.stringify(requestBody),
             });
       
@@ -47,10 +72,11 @@ const Login = () => {
       
             const responseData = await response.json();
             return responseData;
-            } catch (error) {
-                console.error('Error signing in:', error);
-                throw error;
-            }
+        } 
+        catch (error) {
+            console.error('Error signing in:', error);
+            throw error;
+        }
     }
 
     return (
@@ -69,9 +95,9 @@ const Login = () => {
         </div>
         <div className="bg-gray-700 px-4 py-4 shadow rounded-lg max-w-md w-full">
             <form onSubmit={handleSubmit} className='flex flex-col w-full text-white'>
-                {!signIn && <Input id='username' name='Username' type='text'/>}
-                <Input id='email' name='Email Address' type='email'/>
-                <Input id='password' name='Password' type='password'/>
+                {!signIn && <Input id='username' name='Username' type='text' autoComplete="on"/>}
+                <Input id='email' name='Email Address' type='email' autoComplete="on"/>
+                <Input id='password' name='Password' type='password' autoComplete="on"/>
                 <Button disabled={isLoading} fullWidth type='submit'>
                     Sign in
                 </Button>

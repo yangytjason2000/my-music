@@ -1,10 +1,10 @@
 import { useExpand } from "../context/ExpandProvider";
 import { useNavigate, useParams } from "react-router-dom";
 import { IconContext } from "react-icons";
-import { AiOutlineArrowLeft, AiFillPlayCircle} from 'react-icons/ai'
+import { AiOutlineArrowLeft} from 'react-icons/ai'
 import { MdAdd } from "react-icons/md";
 import trackData from "../data/trackdata";
-import TrackLabel from "./TrackLabel";
+import Track from "./RowComponent/Track";
 const Song = () => {
     const {expand} = useExpand();
     const {songid} = useParams();
@@ -37,25 +37,7 @@ const Song = () => {
                     >
                         {trackData.map((track)=>{
                             return (
-                            <div
-                                key = {track.id}
-                                className={`
-                                bg-white
-                                shadow-lg 
-                                container 
-                                rounded-md 
-                                flex 
-                                justify-start
-                                items-center
-                                text-center
-                                h-[100px]
-                                hover:scale-[102%]
-                                duration-300
-                                cursor-pointer
-                                gap-2
-                            `}>
-                                <TrackLabel track={track}/>
-                            </div>
+                                <Track key = {track.id} track={track}/>
                             )})
                         }
                         <div

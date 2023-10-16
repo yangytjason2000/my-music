@@ -1,4 +1,4 @@
-const Input = ({id,name,type}) => {
+const Input = ({id,name,type, autoComplete}) => {
     return (
         <div> 
             <label
@@ -14,6 +14,7 @@ const Input = ({id,name,type}) => {
                     {name}
                 </label>
             <input id = {id} 
+                autoComplete={autoComplete}
                 className={`
                     text-black 
                     p-2 
