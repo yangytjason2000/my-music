@@ -27,17 +27,21 @@ DEBUG = True
 
 # django allow cookies to different site
 SESSION_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_DOMAIN = ''
+# SESSION_COOKIE_DOMAIN = ''
 
-ALLOWED_HOSTS = ["web","localhost","vcm-32439.vm.duke.edu"]
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000','http://vcm-32439.vm.duke.edu:8000']
-
-# CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOW_CREDENTIALS = True
+ALLOWED_HOSTS = ["web","localhost","vcm-32439.vm.duke.edu","musicgit.hhdtc.xyz"]
+CSRF_TRUSTED_ORIGINS = ['https://musicgit.hhdtc.xyz','http://localhost:8000','http://vcm-32439.vm.duke.edu:8000','http://localhost:3000']
+CORS_ALLOW_CREDENTIALS = True
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_HTTPONLY = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",  # Replace with your frontend application's URL
     "http://localhost:3000",   # Add additional origins as needed
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:3000",
+    "https://musicgit.hhdtc.xyz",
 ]
 
 # Application definition
