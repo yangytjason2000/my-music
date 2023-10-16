@@ -25,9 +25,20 @@ SECRET_KEY = 'django-insecure-zcsyvr)yp4up5*8d@o@x=)0qvhkedjh9kbsw)g=-sbo1vid+nz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# django allow cookies to different site
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_DOMAIN = ''
+
 ALLOWED_HOSTS = ["web","localhost","vcm-32439.vm.duke.edu"]
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000','http://vcm-32439.vm.duke.edu:8000']
 
+# CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",  # Replace with your frontend application's URL
+    "http://localhost:3000",   # Add additional origins as needed
+    "http://127.0.0.1:3000"
+]
 
 # Application definition
 
@@ -39,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
     'drf_yasg',
 ]
@@ -50,6 +62,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

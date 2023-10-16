@@ -6,3 +6,4 @@ drf-yasg
 python-dotenv
 django-bootstrap-v5
 crispy-bootstrap5
+django-cors-headers
