@@ -27,8 +27,9 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('register/', views.UserRegistrationView.as_view(), name='register'),
     path('login/', views.UserLogin.as_view(), name='login'),
-    path('userstatus/', views.UserStatus.as_view(), name='userstatus'),
-    path('createalbum/', views.AlbumCreateView.as_view(), name='createalbum'),
-    path('listalbum/', views.AlbumListView.as_view(), name='listalbum'),
-    path('albumimage/', views.AlbumImageView.as_view(), name='albumimage'),
+    path('user_status/', views.UserStatus.as_view(), name='userstatus'),
+    path('album/', views.AlbumCreateView.as_view(), name='album'),
+    path('list_album/', views.AlbumListView.as_view(), name='list_album'),
+    path('album_image/', views.AlbumImageView.as_view(), name='album_image'),
+    path('list_all_album/', views.AlbumListPublicView.as_view(), name='list_all_album'),
 ]

@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.core.paginator import Paginator
 from .serializers import *
 from rest_framework.generics import *
 from django.core import serializers
@@ -179,29 +180,31 @@ class AlbumListView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
     @swagger_auto_schema(operation_description='''
-/listalbum/
-request body: json
-{
-    username: username
-    email: email (optional)
-}
+/listalbum/?username=xxx
 ''')
-    def post(self, request):
-        requestdata = request.data
+    def get(self, request):
+        me = request.user
         user = None
-        if 'username' in requestdata.keys():
-            username = requestdata['username']
+        username = request.GET.get('username', None)
+        email = request.GET.get('email', None)
+        if (username != None):
             user = User.objects.get(username=username)
-        elif 'email' in requestdata.keys():
-            email = requestdata['email']
-            user = User.objects.get(email=email)
-        
+        elif (email != None):
+            user = User.objects.get(email=email)    
         if user == None:
             return Response({'message': 'user does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # myAlbums = Album.objects.filter(owner=me, collaborator=me)
         
-        ownerAlbums = Album.objects.filter(owner=user)
+        #myAlbums is all albbums which owner is me or collaborator has me
+        
+        ownerAlbums = Album.objects.filter(owner=user, isPublic=True) | Album.objects.filter(owner=user, collaborator=me)
+        
+
         ##albums that collaborators contains user
-        collaboratorAlbums = Album.objects.filter(collaborator=user)
+        collaboratorAlbums = Album.objects.filter(collaborator=user, isPublic=True) | ((Album.objects.filter(collaborator=user)).intersection((Album.objects.filter(collaborator=me))))
+        
+        collaboratorAlbums = collaboratorAlbums.intersection(myAlbums)
         
         responsedict = {}
         responsedict['ownerAlbums'] = list(ownerAlbums.values())
@@ -209,6 +212,30 @@ request body: json
         return JsonResponse(responsedict)
 
 #login required
+
+
+class AlbumListPublicView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+    @swagger_auto_schema(operation_description='''
+/list_all_album/?page=x&page_size=y
+''')
+    def get(self,request):
+        page = 0
+        pagesize = 10
+        try:
+            page = int(request.GET.get('page', 0))
+            pagesize = int(request.GET.get('page_size', 10))
+        except Exception as e:
+            return Response({'message': 'page or page_size is not int'}, status=status.HTTP_400_BAD_REQUEST)
+        # get allAlbums at page number with page of 10
+        paginator = Paginator(Album.objects.filter(isPublic=True), pagesize)
+        pagcontent = paginator.get_page(page)
+        elements = list(page.object_list)
+        return JsonResponse(elements)
+
+
+
 
 class AlbumImageView(APIView):
     authentication_classes = [SessionAuthentication]
@@ -220,7 +247,6 @@ request body: json
     id: id of album
 }
 ''')
-
     def post(self, request):
         requestdata = request.data
         id = requestdata['id']
@@ -233,4 +259,5 @@ request body: json
         
         ##returnFileResponse
         return FileResponse(open(filepath, 'rb'), as_attachment=True)
+
 
