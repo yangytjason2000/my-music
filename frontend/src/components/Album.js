@@ -5,8 +5,11 @@ import { useSelector } from "react-redux";
 import { useNavigate, useParams } from 'react-router-dom';
 import { useExpand } from '../context/ExpandProvider';
 import SongRow from './RowComponent/SongRow';
+import { useState } from 'react';
+import AddSongModal from './Modal/AddSongModal';
 const Album = () => {
     const songList = useSelector((state)=>state.songList.songList); 
+    const [addSongVisible,setAddSongVisible] = useState(false);
     const {expand} = useExpand();
     const {id} = useParams();
     const navigate = useNavigate();
@@ -60,6 +63,7 @@ const Album = () => {
                                 <SongRow key={song.id} albumId={id} song={song}/>
                             )})
                         }
+                        <AddSongModal visible={addSongVisible} onClose={()=>setAddSongVisible(false)}/>
                         <div
                             className={`
                                 bg-white
@@ -73,7 +77,8 @@ const Album = () => {
                                 text-center
                                 h-[100px]
                             `}>
-                            <span className='hover:scale-[110%] duration-300 cursor-pointer'>
+                            <span onClick={()=>setAddSongVisible(true)} 
+                                className='hover:scale-[110%] duration-300 cursor-pointer'>
                                 <IconContext.Provider value={{ size: "5em", color: "gray" }}>
                                     <MdAdd />
                                 </IconContext.Provider>

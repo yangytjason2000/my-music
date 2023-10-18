@@ -3,10 +3,14 @@ import { IconContext } from "react-icons";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import Button from "./Buttons/button";
-import Input from "./Input";
+import Input from "./Inputs/Input";
 
 const Login = () => {
     const navigate = useNavigate();
+    const [username,setUsername] = useState('');
+    const [email,setEmail] = useState('');
+    const [password,setPassword] = useState('');
+
     const [signIn, setSignIn] = useState(true);
     const [isLoading,setIsLoading] = useState(false);
     const [isSignedIn, setIsSignedIn] = useState(false);
@@ -14,20 +18,23 @@ const Login = () => {
 
     useEffect(()=>{
         async function fetchStatus(){
-            const apiUrl =process.env.REACT_APP_API_URL+'userstatus/';
+            const apiUrl =process.env.REACT_APP_API_URL+'user_status/';
             try {
                 const response = await fetch(apiUrl, {
                     method: 'GET',
+                    credentials: "include",
                 });
           
                 if (!response.ok) {
                     throw new Error('Fetch status failed');
                 }
-          
+                console.log(response['headers']);
                 const responseData = await response.json();
+                console.log(responseData);
                 setIsSignedIn(responseData['status']);
                 } 
             catch (error) {
+                console.error(error);
             }
         }
         fetchStatus();
@@ -35,20 +42,59 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
         setIsLoading(true);
 
         try {
-            const responseData = await signInUser(email, password);
-            console.log(responseData);
-            setMessage(responseData);
+            if (signIn){
+                const responseData = await signInUser(email, password);
+                console.log(responseData);
+                setMessage(responseData);
+            }
+            else {
+                const responseData = await registerUser(username,email, password);
+                console.log(responseData);
+                setMessage(responseData);
+            }
         } catch (error) {
             console.error('Error signing in:', error);
         } finally {
             setIsLoading(false);
         }
     }
+
+
+    async function registerUser(username, email, password) {
+        const apiUrl =process.env.REACT_APP_API_URL+'register/'; 
+        const requestBody = {
+            username: username,
+            email: email,
+            password: password,
+        };
+      
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: "include",
+                body: JSON.stringify(requestBody),
+            });
+      
+            if (!response.ok) {
+                throw new Error('Register failed');
+            }
+      
+            const responseData = await response.json();
+            return responseData;
+        } 
+        catch (error) {
+            console.error('Error register:', error);
+            throw error;
+        }
+    }
+
+
     async function signInUser(email, password) {
         const apiUrl =process.env.REACT_APP_API_URL+'login/'; 
         const requestBody = {
@@ -95,9 +141,31 @@ const Login = () => {
         </div>
         <div className="bg-gray-700 px-4 py-4 shadow rounded-lg max-w-md w-full">
             <form onSubmit={handleSubmit} className='flex flex-col w-full text-white'>
-                {!signIn && <Input id='username' name='Username' type='text' autoComplete="on"/>}
-                <Input id='email' name='Email Address' type='email' autoComplete="on"/>
-                <Input id='password' name='Password' type='password' autoComplete="on"/>
+                {!signIn && 
+                <Input 
+                    id='username' 
+                    name='Username' 
+                    type='text' 
+                    autoComplete="on"
+                    value={username}
+                    onChange={(e)=>setUsername(e.target.value)}
+                    />
+                }
+                <Input 
+                    id='email' 
+                    name='Email Address' 
+                    type='email' 
+                    autoComplete="on"
+                    value={email}
+                    onChange={(e)=>setEmail(e.target.value)}/>
+                <Input 
+                    id='password' 
+                    name='Password' 
+                    type='password' 
+                    autoComplete="on"
+                    value={password}
+                    onChange={(e)=>setPassword(e.target.value)}
+                    />
                 <Button disabled={isLoading} fullWidth type='submit'>
                     Sign in
                 </Button>
