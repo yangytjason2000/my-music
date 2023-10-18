@@ -19,7 +19,7 @@ from django.http import FileResponse
 from django.contrib.auth.decorators import login_required
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.authtoken.models import Token
 
 
 
@@ -63,8 +63,11 @@ type: json
         email = ""
         if 'email' in request.POST:
             email = json_data['email']
-        
-        user = User.objects.create_user(username=username,password=password,email=email)
+        user = None
+        try:
+            user = User.objects.create_user(username=username,password=password,email=email)
+        except Exception as e:
+            return Response({'message': 'Invalid registration'}, status=status.HTTP_400_BAD_REQUEST) 
         if user is not None:
             user.save()
             return Response(status=status.HTTP_201_CREATED)
@@ -103,6 +106,8 @@ type: json
             print(user.password)
             print(user.email)
             login(request, user)
+            token, created = Token.objects.get_or_create(user=user)
+            # ,'token': token.key
             return Response({'message': 'login complete'},status=status.HTTP_200_OK)
         else:
             return Response({'message': 'Invalid login'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -111,20 +116,47 @@ type: json
 class UserStatus(APIView):
     def get(self, request):
         user = request.user
+        print(request.COOKIES)
         if user.is_authenticated:
             print("login", user.username)
-            return Response({'status': True},status=status.HTTP_200_OK)
+            return Response({'status': True ,"username":user.username},status=status.HTTP_200_OK)
         else:
             print("not login", user.username)
             return Response({'status': False}, status=status.HTTP_200_OK)
-        
+
+#login
+class UserList(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+    @swagger_auto_schema(operation_description='''
+/user_list/?username=xxx
+return json:
+{"user_list": [{"label": "username1", "value": "username1"}, {"label": "username2", "value": "username2"}]}
+''')
+    def get(self, request):
+        subUserString = request.GET.get('username', None)
+        if(subUserString != None):
+            users = User.objects.filter(username__contains=subUserString).order_by('username')
+            users = users[:10]
+            res = []
+            for u in users:
+                tmp = dict()
+                tmp['label'] = u.username
+                tmp['value'] = u.username
+                res.append(tmp)
+            # print(res)
+              
+            return JsonResponse({"user_list":res})
+        else:
+            return Response({'message': 'username is not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class AlbumCreateView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
     @swagger_auto_schema(operation_description='''
-/listalbum/
+/album/
 request body: form data
 name: name
 collaborator: [collaborator1,collaborator2]
@@ -135,7 +167,10 @@ image: image file
         errorMessage = ""
         errorFlag = False
         requsetDict = request.data
+        print(requsetDict)
         name = findInDict(requsetDict,'name')
+        if(name == ""):
+            return Response({'message': 'name is not provided'}, status=status.HTTP_400_BAD_REQUEST)
         owner = request.user
         ownerUser = User.objects.get(username=owner)
         if ownerUser is None:
@@ -153,6 +188,10 @@ image: image file
                 elif (User.objects.get(email=i) is not None):
                     collaboratorlist.append(User.objects.get(email=i))
         isPublic = findInDict(requsetDict,'isPublic')
+        if (isPublic == 'true'):
+            isPublic = True
+        else:
+            isPublic = False
         uploaded_file = request.FILES['image']
         
         newAlbum = Album(name=name,owner=owner,isPublic=isPublic,image=uploaded_file)
@@ -180,7 +219,27 @@ class AlbumListView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
     @swagger_auto_schema(operation_description='''
-/listalbum/?username=xxx
+/list_album/?username=xxx
+return json
+{
+    "ownerAlbums": [
+        {
+            "id": 1,
+            "name": "album123",
+            "owner_id": 1,
+            "isPublic": true,
+            "owner_name": "1234567"
+        },
+        {
+            "id": 2,
+            "name": "Album1",
+            "owner_id": 1,
+            "isPublic": true,
+            "owner_name": "1234567"
+        }
+    ],
+    "collaboratorAlbums": []
+}
 ''')
     def get(self, request):
         me = request.user
@@ -190,25 +249,33 @@ class AlbumListView(APIView):
         if (username != None):
             user = User.objects.get(username=username)
         elif (email != None):
-            user = User.objects.get(email=email)    
+            user = User.objects.get(email=email)
         if user == None:
-            return Response({'message': 'user does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+            user = me
 
-        # myAlbums = Album.objects.filter(owner=me, collaborator=me)
         
         #myAlbums is all albbums which owner is me or collaborator has me
         
-        ownerAlbums = Album.objects.filter(owner=user, isPublic=True) | Album.objects.filter(owner=user, collaborator=me)
+        ownerAlbums = Album.objects.filter(owner=user, isPublic=True).union(Album.objects.filter(owner=user, collaborator=me))
         
 
         ##albums that collaborators contains user
-        collaboratorAlbums = Album.objects.filter(collaborator=user, isPublic=True) | ((Album.objects.filter(collaborator=user)).intersection((Album.objects.filter(collaborator=me))))
+        collaboratorAlbums = Album.objects.filter(collaborator=user, isPublic=True).union((Album.objects.filter(collaborator=user)).intersection((Album.objects.filter(collaborator=me))))
         
-        collaboratorAlbums = collaboratorAlbums.intersection(myAlbums)
         
         responsedict = {}
-        responsedict['ownerAlbums'] = list(ownerAlbums.values())
-        responsedict['collaboratorAlbums'] = list(collaboratorAlbums.values())
+        ownerAlbumsList = list(ownerAlbums.values())
+        for i in ownerAlbumsList:
+            del i['image']
+            i['owner_name'] = User.objects.get(id=i['owner_id']).username
+        
+        collaboratorAlbumsList = list(collaboratorAlbums.values())
+        for i in collaboratorAlbumsList:
+            del i['image']
+            i['owner_name'] = User.objects.get(id=i['owner_id']).username
+        
+        responsedict['ownerAlbums'] = ownerAlbumsList
+        responsedict['collaboratorAlbums'] = collaboratorAlbumsList
         return JsonResponse(responsedict)
 
 #login required
@@ -232,7 +299,7 @@ class AlbumListPublicView(APIView):
         paginator = Paginator(Album.objects.filter(isPublic=True), pagesize)
         pagcontent = paginator.get_page(page)
         elements = list(page.object_list)
-        return JsonResponse(elements)
+        return JsonResponse({"album_list",elements})
 
 
 
@@ -241,15 +308,13 @@ class AlbumImageView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
     @swagger_auto_schema(operation_description='''
-/albumimage/
-request body: json
-{
-    id: id of album
-}
+/album_image/?id=x
+
 ''')
-    def post(self, request):
-        requestdata = request.data
-        id = requestdata['id']
+    def get(self, request):
+        id = request.GET.get('id', None)
+        if id == None:
+            return Response({'message': 'id is not provided'}, status=status.HTTP_400_BAD_REQUEST)
         album = Album.objects.get(id=id)
         if album == None:
             return Response({'message': 'album does not exist'}, status=status.HTTP_400_BAD_REQUEST)

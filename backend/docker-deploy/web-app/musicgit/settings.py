@@ -29,22 +29,24 @@ DEBUG = True
 SESSION_COOKIE_SAMESITE = 'None'
 # SESSION_COOKIE_DOMAIN = ''
 
-ALLOWED_HOSTS = ["web","localhost","vcm-32439.vm.duke.edu","musicgit.hhdtc.xyz"]
-CSRF_TRUSTED_ORIGINS = ['https://musicgit.hhdtc.xyz','http://localhost:8000','http://vcm-32439.vm.duke.edu:8000','http://localhost:3000']
-CORS_ALLOW_CREDENTIALS = True
+ALLOWED_HOSTS = ["web","localhost","vcm-32439.vm.duke.edu","musicgit.hhdtc.xyz","musicfront.hhdtc.xyz"]
+# CSRF_TRUSTED_ORIGINS = ['https://musicgit.hhdtc.xyz','http://localhost:8000','http://vcm-32439.vm.duke.edu:8000','http://localhost:3000']
+
 SESSION_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SAMESITE = 'None'
+# CSRF_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-CSRF_COOKIE_HTTPONLY = False
+CORS_COOKIE_SAMESITE = 'None'
+# CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",  # Replace with your frontend application's URL
     "http://localhost:3000",   # Add additional origins as needed
     "http://127.0.0.1:3000",
     "https://musicgit.hhdtc.xyz",
+    "https://musicfront.hhdtc.xyz",
 ]
 
 # Application definition
@@ -59,6 +61,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    "rest_framework.authtoken",
     'drf_yasg',
 ]
 
@@ -66,14 +69,21 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework.authentication.TokenAuthentication',
+    # ),
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    # 'rest_framework.permissions.IsAuthenticated',]
 }
 
 MIDDLEWARE = [
+    'musicgitapp.middleware.CheckCookieMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'musicgitapp.middleware.DisableCSRFMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
