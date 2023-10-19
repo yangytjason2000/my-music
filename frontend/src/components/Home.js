@@ -83,8 +83,11 @@ const Home = () => {
                                     setSelectedAlbum={setSelectedAlbum}/> 
                             )})
                         }
-                        <AddAlbumModal visible={changeAlbumVisible} onClose={()=>setChangeAlbumVisible(false)} album={selectedAlbum}/>
-                        <AddAlbumModal visible={addAlbumVisible} onClose={()=>setAddAlbumVisible(false)}/>
+                        {changeAlbumVisible && 
+                            <AddAlbumModal visible={changeAlbumVisible} onClose={()=>setChangeAlbumVisible(false)} album={selectedAlbum}/>
+                        }
+                        {addAlbumVisible && <AddAlbumModal visible={addAlbumVisible} onClose={()=>setAddAlbumVisible(false)}/>}
+
                         <div
                             className={`
                                 bg-white

@@ -3,8 +3,10 @@ import Input from "../Inputs/Input";
 import ReactSwitch from 'react-switch';
 import SelectInput from "../Inputs/SelectInput";
 import FileInput from "../Inputs/FileInput";
+import { useQueryClient,useMutation } from "react-query";
 
 const AddAlbumModal = ({visible,onClose, album}) => {
+    const queryClient = useQueryClient();
     const [name,setName] = useState('');
     const [isPublic,setIsPublic] = useState(false);
     const [selectedList, setSelectedList] = useState([]);
@@ -26,6 +28,34 @@ const AddAlbumModal = ({visible,onClose, album}) => {
         setSelectedList([]);
         onClose();
     }
+
+    const addAlbumMutation = useMutation(async (formData) => {
+        const apiUrl =process.env.REACT_APP_API_URL+'album/';
+        const response = await fetch(apiUrl,{
+            method: 'POST',
+            body: formData,
+            credentials: "include",
+        });
+        
+        if (response.ok){
+            const res = await response.json();
+            console.log(res);
+            return res;
+        }
+        else{
+            console.error("can't add new album");
+        }
+    }, {
+        onSuccess: () => {
+            queryClient.invalidateQueries('albums');
+            queryClient.refetchQueries('albums');
+            handleClose();
+        },
+        onError: (error) => {
+            console.error('Failed to add new album: ',error);
+        }
+    }
+    )
     const handleSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData();
@@ -36,26 +66,28 @@ const AddAlbumModal = ({visible,onClose, album}) => {
         formData.append('collaborators', collaboratorsList);
         formData.append('isPublic',isPublic);
         formData.append('image',image);
+        addAlbumMutation.mutate(formData);
+    }
+    const handleDelete = async () => {
         const apiUrl =process.env.REACT_APP_API_URL+'album/';
-        try {
-            const response = await fetch(apiUrl,{
-                method: 'POST',
-                body: formData,
-                credentials: "include",
-            });
-            
-            if (response.ok){
-                const res = await response.json();
-                console.log(res);
-            }
-            else{
-                console.error("can't add new album");
-            }
+        const formData = new FormData();
+        formData.append('id',album.id);
+        const response = await fetch(apiUrl,{
+            method: 'DELETE',
+            body: formData,
+            credentials: "include",
+        });
+        
+        if (response.ok){
+            const res = await response.json();
+            console.log(res);
+            return res;
         }
-        catch{
-            console.error('Failed to add new album')
+        else{
+            console.error("can't delete album");
         }
     }
+
     return (
         <div className={`
             fixed 
@@ -73,14 +105,14 @@ const AddAlbumModal = ({visible,onClose, album}) => {
                         Create your album
                     </h2>
                     <Input 
-                        id='name' 
+                        id='albumname' 
                         name='Album Name' 
                         type='text' 
                         autoComplete="on" 
                         value={name} 
                         onChange={(e)=>setName(e.target.value)}/>
                     <FileInput 
-                        id='image'
+                        id='albumimage'
                         name='Album Cover'
                         type='file'
                         onChange={(e)=>setImage(e.target.files[0])}
