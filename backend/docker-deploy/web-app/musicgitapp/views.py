@@ -183,6 +183,7 @@ image: image file
             collaborator = findInDict(requsetDict,'collaborator')
             python_list = json.loads(collaborator)
             for i in python_list:
+                print("username",i)
                 if (User.objects.get(username=i) is not None):
                     collaboratorlist.append(User.objects.get(username=i))
                 elif (User.objects.get(email=i) is not None):
@@ -192,12 +193,13 @@ image: image file
             isPublic = True
         else:
             isPublic = False
-        uploaded_file = request.FILES['image']
         
-        newAlbum = Album(name=name,owner=owner,isPublic=isPublic,image=uploaded_file)
-        for i in collaboratorlist:
-            newAlbum.collaborator.add(i)
+        
+        uploaded_file = None
+        if 'image' in request.FILES.keys():
+            uploaded_file = request.FILES['image']
         if uploaded_file:
+            newAlbum = Album(name=name,owner=owner,isPublic=isPublic)
             # Define a file path where you want to save the uploaded file
             foldername = "../media/"+name.replace(" ",'_')+"/"
             if not os.path.exists(foldername):
@@ -209,11 +211,120 @@ image: image file
                 for chunk in uploaded_file.chunks():
                     destination_file.write(chunk)
             newAlbum.image = file_path
+            
+            newAlbum.save()
+            for i in collaboratorlist:
+                newAlbum.collaborator.add(i)
             newAlbum.save()
             # You can now perform additional operations on the file or return a success response
             return Response({'message': 'File uploaded and saved successfully'}, status=status.HTTP_201_CREATED)
+        else:
+            newAlbum = Album(name=name,owner=owner,isPublic=isPublic)
+            newAlbum.save()
+            for i in collaboratorlist:
+                newAlbum.collaborator.add(i)
+            newAlbum.save()
+            return Response({'message': 'create succes with No image'}, status=status.HTTP_201_CREATED)
 
+            
         return Response({'message': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+    @swagger_auto_schema(operation_description='''
+/album/
+request body: form data
+id: id
+name: name
+collaborator: [collaborator1,collaborator2]
+isPublic: true/false
+image: image file
+''')
+    def put(self, request):
+        errorMessage = ""
+        errorFlag = False
+        requsetDict = request.data
+        print(requsetDict)
+        id = findInDict(requsetDict,'id')
+        if (id == ''):
+            return Response({'message': 'id is not provided'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            id = int(id)
+        except Exception as e:
+            return Response({'message': 'id is not int'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        obj = Album.objects.get(id=id)
+        if obj == None:
+            return Response({'message': 'album does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        name = findInDict(requsetDict,'name')
+        if (name != ''):
+            obj.name = name
+        
+
+        collaboratorlist = []
+        if 'collaborator' in requsetDict.keys():
+            for j in obj.collaborator.all():
+                obj.collaborator.remove(j)
+            collaborator = findInDict(requsetDict,'collaborator')
+            python_list = json.loads(collaborator)
+            for i in python_list:
+                if (User.objects.get(username=i) is not None):
+                    collaboratorlist.append(User.objects.get(username=i))
+                elif (User.objects.get(email=i) is not None):
+                    collaboratorlist.append(User.objects.get(email=i))
+            for c in collaboratorlist:
+                obj.collaborator.add(c)
+        
+        isPublic = findInDict(requsetDict,'isPublic')
+        if (isPublic == 'true'):
+            obj.isPublic = True
+        elif (isPublic == 'false'):
+            obj.isPublic = False
+        
+        obj.save()
+        uploaded_file = request.FILES['image']
+        if uploaded_file:
+            # Define a file path where you want to save the uploaded file
+            foldername = "../media/"+name.replace(" ",'_')+"/"
+            if not os.path.exists(foldername):
+                os.mkdir(foldername)
+            file_path = foldername + uploaded_file.name
+
+            # Open the file and write the uploaded file data to it
+            with open(file_path, 'wb') as destination_file:
+                for chunk in uploaded_file.chunks():
+                    destination_file.write(chunk)
+            obj.image = file_path
+            # You can now perform additional operations on the file or return a success response
+            
+        obj.save()
+        res = {}
+        res['id'] = obj.id
+        res['name'] = obj.name
+        res['isPublic'] = obj.isPublic
+        res['owner'] = obj.owner.username
+        collaborators = []
+        for c in obj.collaborator.all():
+            collaborators.append({"label":c.username,"value":c.username})
+        res['collaborators'] = collaborators
+        return JsonResponse(res)
+    @swagger_auto_schema(operation_description='''
+/album/
+request body: form data
+id: id
+''')
+    # todo delete file!!!
+    def delete(self,request):
+        requestDict = request.data
+        id = findInDict(requestDict,'id')
+        if id != '':
+            album = Album.objects.get(id=id)
+            if(album):
+                album.delete()
+                return Response({'message': 'delete success'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'album does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'id is not provided'}, status=status.HTTP_400_BAD_REQUEST)
+    
 
 class AlbumListView(APIView):
     authentication_classes = [SessionAuthentication]
@@ -228,14 +339,21 @@ return json
             "name": "album123",
             "owner_id": 1,
             "isPublic": true,
-            "owner_name": "1234567"
+            "owner_name": "1234567",
+            "collaborators": [
+                {label: "username1", value: "username1"},
+                {label: "username1", value: "username1"},
+            ]
+                
+            
         },
         {
             "id": 2,
             "name": "Album1",
             "owner_id": 1,
             "isPublic": true,
-            "owner_name": "1234567"
+            "owner_name": "1234567",
+            "collaborators": []
         }
     ],
     "collaboratorAlbums": []
@@ -274,6 +392,14 @@ return json
             del i['image']
             i['owner_name'] = User.objects.get(id=i['owner_id']).username
         
+        for i in ownerAlbumsList:
+            i['collaborators'] = []
+            for j in Album.objects.get(id=i['id']).collaborator.all():
+                i['collaborators'].append({'label':j.username,'value':j.username})
+        for i in collaboratorAlbumsList:
+            i['collaborators'] = []
+            for j in Album.objects.get(id=i['id']).collaborator.all():
+                i['collaborators'].append({'label':j.username,'value':j.username})
         responsedict['ownerAlbums'] = ownerAlbumsList
         responsedict['collaboratorAlbums'] = collaboratorAlbumsList
         return JsonResponse(responsedict)
