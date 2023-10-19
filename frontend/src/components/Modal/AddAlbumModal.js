@@ -1,14 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "../Inputs/Input";
 import ReactSwitch from 'react-switch';
 import SelectInput from "../Inputs/SelectInput";
 import FileInput from "../Inputs/FileInput";
 
-const AddaAlbumModal = ({visible,onClose}) => {
+const AddAlbumModal = ({visible,onClose, album}) => {
     const [name,setName] = useState('');
     const [isPublic,setIsPublic] = useState(false);
     const [selectedList, setSelectedList] = useState([]);
     const [image,setImage] = useState(null);
+
+    useEffect(()=>{
+        if (album) {
+            setName(album.name || '');
+            setIsPublic(album.isPublic || false);
+            setSelectedList(album.collaborators || []);
+            setImage(album.image || null);
+        }
+    },[album]);
 
     const handleClose = () => {
         setIsPublic(false);
@@ -20,8 +29,11 @@ const AddaAlbumModal = ({visible,onClose}) => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData();
+        const collaboratorsList = selectedList.map((user)=>{
+            return user.value;
+        });
         formData.append('name',name);
-        formData.append('collaborators', selectedList);
+        formData.append('collaborators', collaboratorsList);
         formData.append('isPublic',isPublic);
         formData.append('image',image);
         const apiUrl =process.env.REACT_APP_API_URL+'album/';
@@ -120,4 +132,4 @@ const AddaAlbumModal = ({visible,onClose}) => {
     );
 }
 
-export default AddaAlbumModal;
+export default AddAlbumModal;

@@ -28,9 +28,7 @@ const Login = () => {
                 if (!response.ok) {
                     throw new Error('Fetch status failed');
                 }
-                console.log(response['headers']);
                 const responseData = await response.json();
-                console.log(responseData);
                 setIsSignedIn(responseData['status']);
                 } 
             catch (error) {
