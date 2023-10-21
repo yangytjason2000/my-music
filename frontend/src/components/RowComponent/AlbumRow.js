@@ -40,7 +40,7 @@ const AlbumRow = ({album,setAlbumDetailsVisible,setSelectedAlbum}) => {
                 <button onClick={handleClick} type='button' 
                     className="absolute top-0 right-0 pt-2 pr-2">
                     <IconContext.Provider 
-                        value={{ size: "1em", color: 'black' }}>
+                        value={{ size: "1.5em", color: 'black' }}>
                         <BsThreeDotsVertical/>
                     </IconContext.Provider>
                 </button>   

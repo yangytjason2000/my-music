@@ -3,7 +3,10 @@ import Input from "../Inputs/Input";
 import ReactSwitch from 'react-switch';
 import SelectInput from "../Inputs/SelectInput";
 import FileInput from "../Inputs/FileInput";
-import { useQueryClient,useMutation } from "react-query";
+import { useQueryClient} from "react-query";
+import useAddAlbumMutation from "../../hooks/useAddAlbumMutation";
+import useDeleteAlbumMutation from "../../hooks/useDeleteAlbumMutation";
+import useUpdateAlbumMutation from "../../hooks/useUpdateAlbumMutation";
 
 const AddAlbumModal = ({visible,onClose, album}) => {
     const queryClient = useQueryClient();
@@ -28,64 +31,31 @@ const AddAlbumModal = ({visible,onClose, album}) => {
         setSelectedList([]);
         onClose();
     }
-
-    const addAlbumMutation = useMutation(async (formData) => {
-        const apiUrl =process.env.REACT_APP_API_URL+'album/';
-        const response = await fetch(apiUrl,{
-            method: 'POST',
-            body: formData,
-            credentials: "include",
-        });
-        
-        if (response.ok){
-            const res = await response.json();
-            console.log(res);
-            return res;
-        }
-        else{
-            console.error("can't add new album");
-        }
-    }, {
-        onSuccess: () => {
-            queryClient.invalidateQueries('albums');
-            queryClient.refetchQueries('albums');
-            handleClose();
-        },
-        onError: (error) => {
-            console.error('Failed to add new album: ',error);
-        }
-    }
-    )
+    const addAlbumMutation = useAddAlbumMutation(handleClose,queryClient);
+    const deleteAlbumMutation = useDeleteAlbumMutation(handleClose,queryClient);
+    const updateAlbumMutation = useUpdateAlbumMutation(handleClose,queryClient);
     const handleSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData();
-        const collaboratorsList = selectedList.map((user)=>{
-            return user.value;
-        });
+        if (album){
+            formData.append('id',album.id);
+        }
         formData.append('name',name);
+        const collaboratorsList = JSON.stringify(selectedList.map(user => user.value));
         formData.append('collaborators', collaboratorsList);
         formData.append('isPublic',isPublic);
         formData.append('image',image);
-        addAlbumMutation.mutate(formData);
+        if (album){
+            updateAlbumMutation.mutate(formData);
+        }
+        else {
+            addAlbumMutation.mutate(formData);
+        }
     }
     const handleDelete = async () => {
-        const apiUrl =process.env.REACT_APP_API_URL+'album/';
         const formData = new FormData();
         formData.append('id',album.id);
-        const response = await fetch(apiUrl,{
-            method: 'DELETE',
-            body: formData,
-            credentials: "include",
-        });
-        
-        if (response.ok){
-            const res = await response.json();
-            console.log(res);
-            return res;
-        }
-        else{
-            console.error("can't delete album");
-        }
+        deleteAlbumMutation.mutate(formData);
     }
 
     return (
@@ -131,7 +101,7 @@ const AddAlbumModal = ({visible,onClose, album}) => {
                         disabled={name===''} 
                         className=
                         {`rounded-md 
-                        w-[60px]
+                        w-[80px]
                         px-2 
                         border-2 
                         ${name==='' ? 'opacity-20' : ''}
@@ -142,7 +112,21 @@ const AddAlbumModal = ({visible,onClose, album}) => {
                         text-white 
                         text-center`} 
                         onClick={handleSubmit}>
-                        Add
+                        {album ? 'Update' : 'Add'}
+                    </button>
+                    <button className=
+                        {`rounded-md 
+                        w-[80px]
+                        px-2 
+                        border-2 
+                        border-red-500 
+                        bg-red-500 
+                        hover:border-red-600
+                        hover:bg-red-600
+                        text-white 
+                        text-center`} 
+                        onClick={handleDelete}>
+                        Delete
                     </button>
                     <button className=
                         {`rounded-md 

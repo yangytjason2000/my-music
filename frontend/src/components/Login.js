@@ -82,7 +82,7 @@ const Login = () => {
             if (!response.ok) {
                 throw new Error('Register failed');
             }
-      
+            
             const responseData = await response.json();
             return responseData;
         } 
@@ -99,7 +99,6 @@ const Login = () => {
           email: email,
           password: password,
         };
-      
         try {
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -165,7 +164,7 @@ const Login = () => {
                     onChange={(e)=>setPassword(e.target.value)}
                     />
                 <Button disabled={isLoading} fullWidth type='submit'>
-                    Sign in
+                    {signIn ? 'Sign in' : 'Register'}
                 </Button>
                 <div className="flex gap-2 justify-center text-sm mt-6 px-2 text-white">
                     <div>
