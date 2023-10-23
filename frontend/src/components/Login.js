@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { IconContext } from "react-icons";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import Button from "./Buttons/button";
 import Input from "./Inputs/Input";
+import { useAuth } from "../context/AuthProvider";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -13,8 +14,7 @@ const Login = () => {
 
     const [signIn, setSignIn] = useState(true);
     const [isLoading,setIsLoading] = useState(false);
-    const [isSignedIn, setIsSignedIn] = useState(false);
-    const [message,setMessage] = useState('');
+    const {setIsSignedIn} = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -24,12 +24,11 @@ const Login = () => {
             if (signIn){
                 const responseData = await signInUser(email, password);
                 console.log(responseData);
-                setMessage(responseData);
+                navigate(-1);
             }
             else {
                 const responseData = await registerUser(username,email, password);
                 console.log(responseData);
-                setMessage(responseData);
             }
         } catch (error) {
             console.error('Error signing in:', error);
@@ -62,6 +61,7 @@ const Login = () => {
             }
             
             const responseData = await response.json();
+            setSignIn(true);
             return responseData;
         } 
         catch (error) {
@@ -92,6 +92,7 @@ const Login = () => {
             }
       
             const responseData = await response.json();
+            setIsSignedIn(true);
             return responseData;
         } 
         catch (error) {

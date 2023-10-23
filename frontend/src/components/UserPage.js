@@ -53,6 +53,14 @@ const UserPage = () => {
                         </div>
                         <ProfileInput id='profileEmail' name='Email' type='email' autoComplete='on' 
                             value='test@test.com'/>
+                        <div className="pt-4 flex flex-row justify-between items-center">
+                            <button className="bg-red-600 text-white px-3 py-2 rounded-md">
+                                Sign out
+                            </button>
+                            <button className="bg-green-600 text-white px-3 py-2 rounded-md">
+                                Save Profile
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
