@@ -42,8 +42,7 @@ const Home = () => {
                         method: 'GET',
                         credentials: 'include'
                     });
-                    const imageBlob = await imageResponse.blob();
-                    const url = imageBlob.size ? URL.createObjectURL(imageBlob) : null;
+                    const url = imageResponse.url
                     return { ...album, image: url };
                 } catch (error) {
                     console.error(error);
@@ -83,10 +82,17 @@ const Home = () => {
                                     setSelectedAlbum={setSelectedAlbum}/> 
                             )})
                         }
-                        {changeAlbumVisible && 
-                            <AddAlbumModal visible={changeAlbumVisible} onClose={()=>setChangeAlbumVisible(false)} album={selectedAlbum}/>
-                        }
-                        {addAlbumVisible && <AddAlbumModal visible={addAlbumVisible} onClose={()=>setAddAlbumVisible(false)}/>}
+                        <AddAlbumModal 
+                            visible={changeAlbumVisible} 
+                            onClose={()=>setChangeAlbumVisible(false)} 
+                            album={selectedAlbum}
+                            isAdd={false}
+                        />
+                        <AddAlbumModal 
+                            visible={addAlbumVisible} 
+                            onClose={()=>setAddAlbumVisible(false)}
+                            isAdd={true}
+                        />
 
                         <div
                             className={`
