@@ -17,7 +17,7 @@ const SongRow = ({albumId, song}) => {
                 justify-between
                 items-center
                 text-center
-                h-[100px]
+                h-[80px]
                 hover:scale-[102%]
                 duration-300
                 cursor-pointer
@@ -26,7 +26,7 @@ const SongRow = ({albumId, song}) => {
                 <div className='flex flex-row justify-center items-center'>
                     <span>
                         <IconContext.Provider 
-                            value={{ size: "5em", color: "#27AE60" }}>
+                            value={{ size: "3em", color: "#27AE60" }}>
                             <BiSolidAlbum/>
                         </IconContext.Provider>
                     </span>

@@ -16,28 +16,6 @@ const Login = () => {
     const [isSignedIn, setIsSignedIn] = useState(false);
     const [message,setMessage] = useState('');
 
-    useEffect(()=>{
-        async function fetchStatus(){
-            const apiUrl =process.env.REACT_APP_API_URL+'user_status/';
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'GET',
-                    credentials: "include",
-                });
-          
-                if (!response.ok) {
-                    throw new Error('Fetch status failed');
-                }
-                const responseData = await response.json();
-                setIsSignedIn(responseData['status']);
-                } 
-            catch (error) {
-                console.error(error);
-            }
-        }
-        fetchStatus();
-    },[message]);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);

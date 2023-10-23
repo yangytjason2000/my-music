@@ -1,4 +1,4 @@
-import data from "../data/trackicons";
+import data from "../../data/trackicons";
 import { IconContext } from "react-icons";
 
 const TrackLabel = ({track}) => {

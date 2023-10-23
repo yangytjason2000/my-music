@@ -8,19 +8,22 @@ import store from './store';
 import { Provider } from "react-redux";
 import { ExpandProvider } from './context/ExpandProvider';
 import { QueryClient, QueryClientProvider} from 'react-query';
+import { AuthProvider } from './context/AuthProvider';
 
 const queryClient = new QueryClient();
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ExpandProvider>
-        <Provider store={store}>
-          <Router>
-            <App />
-          </Router>
-        </Provider>
-      </ExpandProvider>
+      <AuthProvider>
+        <ExpandProvider>
+          <Provider store={store}>
+            <Router>
+              <App />
+            </Router>
+          </Provider>
+        </ExpandProvider>
+      </AuthProvider>
     </QueryClientProvider>
   </React.StrictMode>
 );

@@ -1,4 +1,4 @@
-import TrackLabel from "../TrackLabel"
+import TrackLabel from "../Labels/TrackLabel";
 const Track = ({track}) => {
     return (
         <div

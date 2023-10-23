@@ -7,6 +7,7 @@ import MusicPlayer from './components/MusicPlayer';
 import { Route, Routes } from "react-router-dom";
 import Song from './components/Song';
 import Login from './components/Login';
+import UserPage from './components/UserPage';
 
 function MainLayout() {
   return (
@@ -14,6 +15,7 @@ function MainLayout() {
       <Navbar/>
       <Routes>
         <Route exact path='/' element={<Home/>}/>
+        <Route path='/user_page' element={<UserPage/>}/>
         <Route path='/contact' element={<Contact/>}/>
         <Route path='/album/:id' element={<Album/>}/>
         <Route path='album/:id/:songid' element={<Song/>}/>

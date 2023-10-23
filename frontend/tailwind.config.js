@@ -6,7 +6,10 @@ module.exports = {
   theme: {
     extend: {
       borderRadius: {
-        'xl': '1.5rem'
+        'xl': '1.5rem',
+      },
+      borderWidth: {
+        '3': '3px',
       },
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],
