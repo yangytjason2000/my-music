@@ -33,4 +33,6 @@ urlpatterns = [
     path('album_image/', views.AlbumImageView.as_view(), name='album_image'),
     path('list_all_album/', views.AlbumListPublicView.as_view(), name='list_all_album'),
     path('user_list/', views.UserList.as_view(), name='user_list'),
+    path('user_image/', views.UserImageView.as_view(), name='user_image'),
+    path("song/",views.SongView.as_view(),name="song"),
 ]

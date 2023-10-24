@@ -21,5 +21,9 @@ class Track(models.Model):
     name = models.CharField(max_length=100)
     artist = models.ManyToManyField(User)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
+
+class UserImage(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    image = models.CharField(max_length=1000)
     
     

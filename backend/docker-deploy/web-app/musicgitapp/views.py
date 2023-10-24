@@ -58,10 +58,12 @@ type: json
                          ''')
     def post(self,request):
         json_data = request.data
+        print(json_data)
+        
         username = json_data['username']
         password = json_data['password']
         email = ""
-        if 'email' in request.POST:
+        if 'email' in json_data:
             email = json_data['email']
         user = None
         try:
@@ -70,11 +72,62 @@ type: json
             return Response({'message': 'Invalid registration'}, status=status.HTTP_400_BAD_REQUEST) 
         if user is not None:
             user.save()
-            return Response(status=status.HTTP_201_CREATED)
+            return Response({'message': 'registration success'},status=status.HTTP_201_CREATED)
         else:
             return Response({'message': 'Invalid registration'}, status=status.HTTP_400_BAD_REQUEST)
 
+class UserImageView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+    @swagger_auto_schema(operation_description='''
+/user_image/
+form data:
+image: image file
+''')
+    def post(self,request):
+        me = request.user
+        uploaded_file = request.FILES['image']
+        userImage = UserImage.objects.get(user=me)
+        if not userImage:
+            userImage = UserImage(user=me)
+        if uploaded_file:
+            # Define a file path where you want to save the uploaded file
+            foldername = "../media/user_image/"+me.username.replace(" ",'_').replace("/","_")+"/"
+            if not os.path.exists(foldername):
+                os.mkdir(foldername)
+            file_path = foldername + uploaded_file.name
 
+            # Open the file and write the uploaded file data to it
+            with open(file_path, 'wb') as destination_file:
+                for chunk in uploaded_file.chunks():
+                    destination_file.write(chunk)
+            userImage.image = file_path
+            # You can now perform additional operations on the file or return a success response
+            
+            userImage.save()
+            return Response({'message': 'File uploaded and saved successfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+    @swagger_auto_schema(operation_description='''
+/user_image/?username=xxx
+''')
+    def get(self,request):
+        username=request.GET.get('username', None)
+        if username == None:
+            return Response({'message': 'username is not provided'}, status=status.HTTP_400_BAD_REQUEST)
+        user = User.objects.get(username)
+        if user == None:
+            return Response({'message': 'user does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        userImage = UserImage.objects.get(user=user)
+        if userImage == None:
+            return Response(None, status=status.HTTP_200_OK)
+        filepath = userImage.image
+        print(filepath)
+        
+        ##returnFileResponse
+        if (filepath == None or filepath == ''):
+            return Response(None, status=status.HTTP_200_OK)
+        return FileResponse(open(filepath, 'rb'), as_attachment=True)
 #login
 class UserLogin(APIView):
     @swagger_auto_schema(operation_description='''
@@ -135,8 +188,9 @@ return json:
 ''')
     def get(self, request):
         subUserString = request.GET.get('username', None)
+        me = request.user
         if(subUserString != None):
-            users = User.objects.filter(username__contains=subUserString).order_by('username')
+            users = User.objects.filter(username__contains=subUserString).exclude(username=me.username).order_by('username')
             users = users[:10]
             res = []
             for u in users:
@@ -159,7 +213,7 @@ class AlbumCreateView(APIView):
 /album/
 request body: form data
 name: name
-collaborator: [collaborator1,collaborator2]
+collaborators: [collaborator1,collaborator2]
 isPublic: true/false
 image: image file
 ''')
@@ -179,15 +233,19 @@ image: image file
             return Response({'message': errorMessage}, status=status.HTTP_400_BAD_REQUEST)
         #'[1, 2, 3, 4, 5]' 
         collaboratorlist = []
-        if 'collaborator' in requsetDict.keys():
-            collaborator = findInDict(requsetDict,'collaborator')
+        if 'collaborators' in requsetDict.keys():
+            collaborator = findInDict(requsetDict,'collaborators')
+            print(collaborator)
             python_list = json.loads(collaborator)
+            print(python_list)
             for i in python_list:
                 print("username",i)
                 if (User.objects.get(username=i) is not None):
                     collaboratorlist.append(User.objects.get(username=i))
                 elif (User.objects.get(email=i) is not None):
                     collaboratorlist.append(User.objects.get(email=i))
+                else:
+                    return Response({'message': 'collaborator does not exist'}, status=status.HTTP_400_BAD_REQUEST)
         isPublic = findInDict(requsetDict,'isPublic')
         if (isPublic == 'true'):
             isPublic = True
@@ -201,7 +259,7 @@ image: image file
         if uploaded_file:
             newAlbum = Album(name=name,owner=owner,isPublic=isPublic)
             # Define a file path where you want to save the uploaded file
-            foldername = "../media/"+name.replace(" ",'_')+"/"
+            foldername = "../media/"+name.replace(" ",'_').replace("/",'_')+"/"
             if not os.path.exists(foldername):
                 os.mkdir(foldername)
             file_path = foldername + uploaded_file.name
@@ -233,9 +291,10 @@ image: image file
 request body: form data
 id: id
 name: name
-collaborator: [collaborator1,collaborator2]
+collaborators: [collaborator1,collaborator2]
 isPublic: true/false
 image: image file
+
 ''')
     def put(self, request):
         errorMessage = ""
@@ -260,16 +319,18 @@ image: image file
         
 
         collaboratorlist = []
-        if 'collaborator' in requsetDict.keys():
+        if 'collaborators' in requsetDict.keys():
             for j in obj.collaborator.all():
                 obj.collaborator.remove(j)
-            collaborator = findInDict(requsetDict,'collaborator')
+            collaborator = findInDict(requsetDict,'collaborators')
             python_list = json.loads(collaborator)
             for i in python_list:
                 if (User.objects.get(username=i) is not None):
                     collaboratorlist.append(User.objects.get(username=i))
                 elif (User.objects.get(email=i) is not None):
                     collaboratorlist.append(User.objects.get(email=i))
+                else:
+                    return Response({'message': 'collaborator does not exist'}, status=status.HTTP_400_BAD_REQUEST)
             for c in collaboratorlist:
                 obj.collaborator.add(c)
         
@@ -283,7 +344,7 @@ image: image file
         uploaded_file = request.FILES['image']
         if uploaded_file:
             # Define a file path where you want to save the uploaded file
-            foldername = "../media/"+name.replace(" ",'_')+"/"
+            foldername = "../media/album/"+name.replace(" ",'_')+"/"
             if not os.path.exists(foldername):
                 os.mkdir(foldername)
             file_path = foldername + uploaded_file.name
@@ -373,14 +434,15 @@ return json
 
         
         #myAlbums is all albbums which owner is me or collaborator has me
-        
-        ownerAlbums = Album.objects.filter(owner=user, isPublic=True).union(Album.objects.filter(owner=user, collaborator=me))
-        
-
-        ##albums that collaborators contains user
-        collaboratorAlbums = Album.objects.filter(collaborator=user, isPublic=True).union((Album.objects.filter(collaborator=user)).intersection((Album.objects.filter(collaborator=me))))
-        
-        
+        if (user == me):
+            ownerAlbums = Album.objects.filter(owner=me)
+            collaboratorAlbums = Album.objects.filter(collaborator=me)
+        else:
+            ownerAlbums = Album.objects.filter(owner=user, isPublic=True).union(Album.objects.filter(owner=user, collaborator=me))
+            ##albums that collaborators contains user
+            collaboratorAlbums = Album.objects.filter(collaborator=user, isPublic=True).union((Album.objects.filter(collaborator=user)).intersection((Album.objects.filter(collaborator=me))))
+            
+            
         responsedict = {}
         ownerAlbumsList = list(ownerAlbums.values())
         for i in ownerAlbumsList:
@@ -449,6 +511,149 @@ class AlbumImageView(APIView):
         print(filepath)
         
         ##returnFileResponse
+        if (filepath == None or filepath == ''):
+            return Response(None, status=status.HTTP_204_NO_CONTENT)
         return FileResponse(open(filepath, 'rb'), as_attachment=True)
 
+class SongView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    @swagger_auto_schema(operation_description='''
+    /song/?id=x
+    {
+        "id": 1,
+        "name": "song name",
+        "artists": ["1234567","12345678"],
+        "album_id": 1,
+        "album_name": "album name"
+    }
+    
+    
+    
+    or
+    /song/?album_id=x
+    {
+        "songs": [
+                {
+                    "id": 1,
+                    "name": "song name",
+                    "artists": ["1234567","12345678"],
+                    "album_id": 1,
+                    "album_name": "album name"
+                },
+                {
+                    "id": 2,
+                    "name": "song name",
+                    "artists": ["1234567","12345678"],
+                    "album_id": 1,
+                    "album_name": "album name"
+                }
+        ]
+    }
+''')
+    def get(self,request):
+        id = request.GET.get('id', None)
+        album_id = request.GET.get('album_id', None)
+        if id == None and album_id == None:
+            return Response({'message': 'id or album_id is not provided'}, status=status.HTTP_400_BAD_REQUEST)
+        if id != None:
+            song = Song.objects.get(id=id)
+            if song == None:
+                return Response({'message': 'song does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                artists = []
+                for i in song.artist.all():
+                    artists.append(i.username)
+                return JsonResponse({"id":song.id,"name":song.name,"artists":artists,"album_id":song.album.id,"album_name":song.album.name})
+        else:
+            album = Album.objects.get(id=album_id)
+            if album == None:
+                return Response({'message': 'album does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                songs = Song.objects.filter(album=album)
+                res = []
+                for i in songs:
+                    artists = []
+                    for j in i.artist.all():
+                        artists.append(j.username)
+                    res.append({"id":i.id,"name":i.name,"artists":artists,"album_id":i.album.id,"album_name":i.album.name})
+                return JsonResponse({"songs":res})
+    @swagger_auto_schema(operation_description='''
+    /song/
+    request body: json
+    {
+        "name": "songname"
+        "artists": ["artist1","artist2"]
+        "album_id": 2
+    }
+''')
+    def post(self,request):
+        json_data = request.data
+        print(json_data)
+        name = findInDict(json_data,'name')
+        artists = findInDict(json_data,'artists')
+        album_id = findInDict(json_data,'album_id')
+
+        if (name == ''):
+            return Response({'message': 'name is not provided'}, status=status.HTTP_400_BAD_REQUEST)
+        if (artists == ''):
+            return Response({'message': 'artists is not provided'}, status=status.HTTP_400_BAD_REQUEST)
+        if (album_id == ''):
+            return Response({'message': 'album_id is not provided'}, status=status.HTTP_400_BAD_REQUEST)
+        album = Album.objects.get(id=album_id)
+        if (album == None):
+            return Response({'message': 'album does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        song = Song(name=name,album=album)
+        song.save()
+        for i in artists:
+            artist = User.objects.get(username=i)
+            if (artist == None):
+                return Response({'message': 'artist does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+            song.artist.add(artist)
+        song.save()
+        return Response({'message': 'create success'}, status=status.HTTP_200_OK)
+    @swagger_auto_schema(operation_description='''
+    /song/
+    request body: json
+    {
+        "id":id
+        "name": "songname"
+        "artists": ["artist1","artist2"]
+        # "album_id": 2 (currently not supported)
+    }
+    ''')
+    def put(self,request):
+        json_data = request.data
+        print(json_data)
+        id = findInDict(json_data,'id')
+        name = findInDict(json_data,'name')
+        artists = findInDict(json_data,'artists')
+        # album_id = findInDict(json_data,'album_id')
+        if (id == ''):
+            return Response({'message': 'id is not provided'}, status=status.HTTP_400_BAD_REQUEST)
+        if (name == ''):
+            return Response({'message': 'name is not provided'}, status=status.HTTP_400_BAD_REQUEST)
+        if (artists == ''):
+            return Response({'message': 'artists is not provided'}, status=status.HTTP_400_BAD_REQUEST)
+        # if (album_id == ''):
+        #     return Response({'message': 'album_id is not provided'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        song = Song.objects.get(id=id)
+        song.name = name
+        song.artist.clear()
+        for i in artists:
+            artist = User.objects.get(username=i)
+            if (artist == None):
+                return Response({'message': 'artist does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+            song.artist.add(artist)
+        song.save()
+        return JsonResponse({"id":song.id,"name":song.name,"artists":artists,"album_id":song.album.id,"album_name":song.album.name})
+        
+        
+        
+        
+    
+    
+        
 
