@@ -259,7 +259,7 @@ image: image file
         if uploaded_file:
             newAlbum = Album(name=name,owner=owner,isPublic=isPublic)
             # Define a file path where you want to save the uploaded file
-            foldername = "../media/"+name.replace(" ",'_').replace("/",'_')+"/"
+            foldername = "../media/album/"+name.replace(" ",'_').replace("/",'_')+"/"
             if not os.path.exists(foldername):
                 os.mkdir(foldername)
             file_path = foldername + uploaded_file.name
@@ -293,7 +293,8 @@ id: id
 name: name
 collaborators: [collaborator1,collaborator2]
 isPublic: true/false
-image: image file
+change_image: true/false
+image: image file (optional)
 
 ''')
     def put(self, request):
@@ -339,24 +340,29 @@ image: image file
             obj.isPublic = True
         elif (isPublic == 'false'):
             obj.isPublic = False
-        
         obj.save()
-        uploaded_file = request.FILES['image']
-        if uploaded_file:
-            # Define a file path where you want to save the uploaded file
-            foldername = "../media/album/"+name.replace(" ",'_')+"/"
-            if not os.path.exists(foldername):
-                os.mkdir(foldername)
-            file_path = foldername + uploaded_file.name
+        changeImage = findInDict(requsetDict,'change_image')
+        if (changeImage == 'true'):
+            changeImage = True
+        elif (changeImage == 'false'):
+            changeImage = False
+        if changeImage == True:
+            uploaded_file = request.FILES['image']
+            if uploaded_file:
+                # Define a file path where you want to save the uploaded file
+                foldername = "../media/album/"+name.replace(" ",'_')+"/"
+                if not os.path.exists(foldername):
+                    os.mkdir(foldername)
+                file_path = foldername + uploaded_file.name
 
-            # Open the file and write the uploaded file data to it
-            with open(file_path, 'wb') as destination_file:
-                for chunk in uploaded_file.chunks():
-                    destination_file.write(chunk)
-            obj.image = file_path
-            # You can now perform additional operations on the file or return a success response
-            
-        obj.save()
+                # Open the file and write the uploaded file data to it
+                with open(file_path, 'wb') as destination_file:
+                    for chunk in uploaded_file.chunks():
+                        destination_file.write(chunk)
+                obj.image = file_path
+                # You can now perform additional operations on the file or return a success response
+                
+            obj.save()
         res = {}
         res['id'] = obj.id
         res['name'] = obj.name

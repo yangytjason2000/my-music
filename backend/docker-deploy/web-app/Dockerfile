@@ -5,4 +5,6 @@ WORKDIR /code
 ADD requirements.txt /code/
 RUN pip install -r requirements.txt
 RUN chmod 777 ../media
+RUN mkdir ../media/album
+RUN chmod 777 ../media/album
 ADD . /code/
