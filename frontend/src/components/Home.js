@@ -1,61 +1,20 @@
-import { useEffect, useState} from 'react';
-import { useDispatch } from 'react-redux';
-import { changeSongList } from '../reducers/songListReducer';
-import data from '../data/data';
+import { useState } from 'react';
 import { MdAdd } from 'react-icons/md'
 import { IconContext } from "react-icons";
 
 import { useExpand } from '../context/ExpandProvider';
 import AlbumRow from './RowComponent/AlbumRow';
 import AddAlbumModal from './Modal/AddAlbumModal';
-import { useQuery} from 'react-query';
+import { useQuery } from 'react-query';
+import fetchAlbumList from '../fetchAPI/fetchAlbumList';
 
 const Home = () => {
-    const dispatch = useDispatch();
     const [selectedAlbum, setSelectedAlbum] = useState(null);
     const {data: albums = []} = useQuery('albums',fetchAlbumList);
-    useEffect(()=>{
-        dispatch(changeSongList(data))
-    },[dispatch])
     const [addAlbumVisible,setAddAlbumVisible] = useState(false);
     const [changeAlbumVisible,setChangeAlbumVisible] = useState(false);
     const {expand} = useExpand();
 
-    async function fetchAlbumList(){
-        const apiUrl =process.env.REACT_APP_API_URL+'list_album/';
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'GET',
-                credentials: "include",
-            });
-      
-            if (!response.ok) {
-                throw new Error('Fetch list failed');
-            }
-            const responseData = await response.json();
-            const ownerAlbums = responseData['ownerAlbums'];
-            
-            const albumImagesPromises = ownerAlbums.map(async(album)=>{
-                const fetch_image_url = process.env.REACT_APP_API_URL + 'album_image/?id=' + album.id;
-                try {
-                    const imageResponse = await fetch(fetch_image_url,{
-                        method: 'GET',
-                        credentials: 'include'
-                    });
-                    const url = imageResponse.url
-                    return { ...album, image: url };
-                } catch (error) {
-                    console.error(error);
-                    return album;
-                }
-            })
-            const albumWithImages = await Promise.all(albumImagesPromises);
-            return albumWithImages;
-        }
-        catch (error){
-            console.error(error)
-        }
-    }
     return (
         <div className=
             {`w-full 

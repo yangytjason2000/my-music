@@ -1,14 +1,25 @@
 import { useState } from "react";
 import Input from "../Inputs/Input";
+import useAddSongMutation from "../../hooks/useAddSongMutation";
+import { useQueryClient } from "react-query";
 
-const AddSongModal = ({visible,onClose}) => {
+const AddSongModal = ({visible,onClose,id,isAdd}) => {
+    const queryClient = useQueryClient();
     const [name,setName] = useState('');
     const handleClose = () => {
         setName('');
         onClose();
     }
-    const handleSubmit = () => {
-        console.log('addList');
+    const addSongMutation = useAddSongMutation(handleClose,queryClient);
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const requestBody = {
+            name: name,
+            artists: ['test'],
+            album_id: id,
+        };
+        addSongMutation.mutate(requestBody);
     }
     return (
         <div className={`

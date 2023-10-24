@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Input from "../Inputs/Input";
 import ReactSwitch from 'react-switch';
 import SelectInput from "../Inputs/SelectInput";
@@ -9,6 +9,7 @@ import useDeleteAlbumMutation from "../../hooks/useDeleteAlbumMutation";
 import useUpdateAlbumMutation from "../../hooks/useUpdateAlbumMutation";
 
 const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
+    const fileRef = useRef();
     const queryClient = useQueryClient();
     const [name,setName] = useState('');
     const [isPublic,setIsPublic] = useState(false);
@@ -17,6 +18,7 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
     const [imagePreview,setImagePreview] = useState('');
     const [initialState,setInitialState] = useState(album);
     const [updateDisabled,setUpdateDisabled] = useState(true);
+    const [imageChanged, setImageChanged] = useState(false);
 
     useEffect(()=>{
         if (album && !isAdd) {
@@ -32,7 +34,7 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
             setImage(album.image || null);
             setImagePreview(album.image || null);
         }
-    },[album,isAdd]);
+    },[album,isAdd,visible]);
 
     useEffect(() => {
         const checkIfFormChanged = () => {
@@ -60,6 +62,8 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
         setName('');
         setImage(null);
         setSelectedList([]);
+        setImagePreview(null);
+        fileRef.current.value = "";
         onClose();
     }
     const handleImageSubmit = (e) => {
@@ -77,8 +81,12 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
                 reader.readAsDataURL(file);
 
                 setImage(file);
+                setImageChanged(true);
             }
             else {
+                if (fileRef.current) {
+                    fileRef.current.value = "";
+                }
                 alert("Error: Please upload a valid image file (e.g., jpg, gif, png).");
             }
         }
@@ -86,11 +94,13 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
     const addAlbumMutation = useAddAlbumMutation(handleClose,queryClient);
     const deleteAlbumMutation = useDeleteAlbumMutation(handleClose,queryClient);
     const updateAlbumMutation = useUpdateAlbumMutation(handleClose,queryClient);
+    
     const handleSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData();
         if (!isAdd){
             formData.append('id',album.id);
+            formData.append('change_image',imageChanged);
         }
         formData.append('name',name);
         const collaboratorsList = JSON.stringify(selectedList.map(user => user.value));
@@ -108,6 +118,7 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
         const formData = new FormData();
         formData.append('id',album.id);
         deleteAlbumMutation.mutate(formData);
+        URL.revokeObjectURL(album.image);
     }
 
     return (
@@ -134,6 +145,7 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
                         value={name} 
                         onChange={(e)=>setName(e.target.value)}/>
                     <FileInput 
+                        ref = {fileRef}
                         id={isAdd ? 'newAlbumImage' : 'albumImage'}
                         name='Album Cover'
                         type='file'
