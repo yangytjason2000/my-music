@@ -27,7 +27,7 @@ const AddSongModal = ({visible,onClose}) => {
                         Create your song
                     </h2>
                     <Input 
-                        id='name' 
+                        id='songname' 
                         name='Song name' 
                         type='text' 
                         autoComplete="on" 

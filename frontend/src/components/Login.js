@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { IconContext } from "react-icons";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import Button from "./Buttons/button";
 import Input from "./Inputs/Input";
+import { useAuth } from "../context/AuthProvider";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -13,32 +14,7 @@ const Login = () => {
 
     const [signIn, setSignIn] = useState(true);
     const [isLoading,setIsLoading] = useState(false);
-    const [isSignedIn, setIsSignedIn] = useState(false);
-    const [message,setMessage] = useState('');
-
-    useEffect(()=>{
-        async function fetchStatus(){
-            const apiUrl =process.env.REACT_APP_API_URL+'user_status/';
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'GET',
-                    credentials: "include",
-                });
-          
-                if (!response.ok) {
-                    throw new Error('Fetch status failed');
-                }
-                console.log(response['headers']);
-                const responseData = await response.json();
-                console.log(responseData);
-                setIsSignedIn(responseData['status']);
-                } 
-            catch (error) {
-                console.error(error);
-            }
-        }
-        fetchStatus();
-    },[message]);
+    const {setIsSignedIn} = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -48,12 +24,11 @@ const Login = () => {
             if (signIn){
                 const responseData = await signInUser(email, password);
                 console.log(responseData);
-                setMessage(responseData);
+                navigate(-1);
             }
             else {
                 const responseData = await registerUser(username,email, password);
                 console.log(responseData);
-                setMessage(responseData);
             }
         } catch (error) {
             console.error('Error signing in:', error);
@@ -84,8 +59,9 @@ const Login = () => {
             if (!response.ok) {
                 throw new Error('Register failed');
             }
-      
+            
             const responseData = await response.json();
+            setSignIn(true);
             return responseData;
         } 
         catch (error) {
@@ -101,7 +77,6 @@ const Login = () => {
           email: email,
           password: password,
         };
-      
         try {
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -117,6 +92,7 @@ const Login = () => {
             }
       
             const responseData = await response.json();
+            setIsSignedIn(true);
             return responseData;
         } 
         catch (error) {
@@ -167,7 +143,7 @@ const Login = () => {
                     onChange={(e)=>setPassword(e.target.value)}
                     />
                 <Button disabled={isLoading} fullWidth type='submit'>
-                    Sign in
+                    {signIn ? 'Sign in' : 'Register'}
                 </Button>
                 <div className="flex gap-2 justify-center text-sm mt-6 px-2 text-white">
                     <div>

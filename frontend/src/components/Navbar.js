@@ -5,7 +5,9 @@ import { MdOutlineContactSupport } from 'react-icons/md';
 import { FiUpload } from 'react-icons/fi';
 import placeHolder from '../assets/placeholder.png'
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthProvider';
 const Navbar = () => {
+    const {isSignedIn} = useAuth();
     const [navVisible,setNavVisible] = useState(false);
     const handleClick = () => {
         setNavVisible(navVisible=>!navVisible);
@@ -28,6 +30,17 @@ const Navbar = () => {
             `}
             >
             <div>
+                {isSignedIn ?
+                <Link to='/user_page'>
+                    {
+                    <img 
+                        src={placeHolder} 
+                        alt="placehoder"
+                        className='cursor-pointer rounded-full hover:scale-110 duration-300'
+                        style={{width:'70px'}}>
+                    </img>
+                    }
+                </Link> :
                 <Link to='/login'>
                     {
                     <img 
@@ -38,6 +51,7 @@ const Navbar = () => {
                     </img>
                     }
                 </Link>
+                }
             </div>
             {/* menu */}
             <ul className='hidden md:flex font-poppins'>

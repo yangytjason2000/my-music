@@ -48,8 +48,9 @@ const Album = () => {
                 ${expand ? 'pb-[90px]' : ''}
                 duration-300
             `}>
-                <div className="bg-[#121212] h-full rounded-lg overflow-auto">
-                    <span onClick={()=>navigate(-1)} className='fixed ml-1 mt-1 cursor-pointer'>
+                <div className="bg-[#121212] h-full rounded-lg overflow-auto relative">
+                    <span onClick={()=>navigate(-1)} 
+                        className='absolute top-2 left-4 cursor-pointer bg-black rounded-full'>
                         <IconContext.Provider 
                             value={{ size: "2em", color: "#27AE60" }}>
                             <AiOutlineArrowLeft/>

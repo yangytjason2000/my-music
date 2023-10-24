@@ -22,7 +22,6 @@ const SelectInput = ({name,selectedList,setSelectedList}) => {
         
                 if (response.ok) {
                     setOptions(data['user_list']);
-                    console.log(data['user_list']);
                 } else {
                     console.error('Failed to fetch options');
                 }
