@@ -1,26 +1,72 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "../Inputs/Input";
 import useAddSongMutation from "../../hooks/useAddSongMutation";
 import { useQueryClient } from "react-query";
+import AddButton from "../Buttons/AddButton";
+import useDeleteSongMutation from "../../hooks/useDeleteSongMutation";
 
-const AddSongModal = ({visible,onClose,id,isAdd}) => {
+const AddSongModal = ({visible,onClose,id,song,isAdd}) => {
     const queryClient = useQueryClient();
     const [name,setName] = useState('');
+    const [initialState,setInitialState] = useState(song);
+    const [updateDisabled,setUpdateDisabled] = useState(true);
+
+    useEffect(()=>{
+        if (isAdd){
+            setInitialState(null);
+            setName('');
+        }
+        if (song && !isAdd){
+            setInitialState({
+                name: song.name || ''
+            })
+            setName(song.name || '');
+        }
+    },[visible,isAdd,song]);
+
+    useEffect(() => {
+        const checkIfFormChanged = () => {
+            if (isAdd || !initialState){
+                return
+            }
+            if (
+                initialState.name !== name
+            ) {
+                setUpdateDisabled(false);
+            } else {
+                setUpdateDisabled(true);
+            }
+        };
+        if (!isAdd){
+            checkIfFormChanged();
+        }
+    }, [name, initialState, isAdd]);
+
     const handleClose = () => {
+        setInitialState(null);
         setName('');
         onClose();
     }
     const addSongMutation = useAddSongMutation(handleClose,queryClient);
+    const deleteSongMutation = useDeleteSongMutation(handleClose,queryClient);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         const requestBody = {
             name: name,
-            artists: ['test'],
             album_id: id,
         };
         addSongMutation.mutate(requestBody);
     }
+
+    const handleDelete = async () => {
+        const requestBody = {
+            id: song.id,
+            album_id: id,
+        }
+        deleteSongMutation.mutate(requestBody);
+    }
+
     return (
         <div className={`
             fixed 
@@ -38,7 +84,7 @@ const AddSongModal = ({visible,onClose,id,isAdd}) => {
                         Create your song
                     </h2>
                     <Input 
-                        id='songname' 
+                        id={isAdd ? 'newsongname' : 'songname'} 
                         name='Song name' 
                         type='text' 
                         autoComplete="on" 
@@ -46,19 +92,24 @@ const AddSongModal = ({visible,onClose,id,isAdd}) => {
                         onChange={(e)=>setName(e.target.value)}/>
                 </div>
                 <div className="flex justify-end items-end gap-2">
+                    {isAdd ?
+                    <AddButton disabled={name===''} text="Add" handleSubmit={handleSubmit}/>
+                        :
+                    <AddButton disabled={updateDisabled} text="Update" handleSubmit={handleSubmit}/>
+                    }
                     <button className=
                         {`rounded-md 
-                        w-[60px]
+                        w-[80px]
                         px-2 
                         border-2 
-                        border-green-500 
-                        bg-green-500
-                        hover:border-green-600
-                        hover:bg-green-600
+                        border-red-500 
+                        bg-red-500 
+                        hover:border-red-600
+                        hover:bg-red-600
                         text-white 
                         text-center`} 
-                        onClick={handleSubmit}>
-                        Add
+                        onClick={handleDelete}>
+                        Delete
                     </button>
                     <button className=
                         {`rounded-md 

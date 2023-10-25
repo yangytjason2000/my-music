@@ -33,7 +33,7 @@ const Song = () => {
                             <AiOutlineArrowLeft/>
                         </IconContext.Provider>
                     </span>
-                    <div className='grid grid-cols-1 items-end gap-4 my-2 ml-12 w-[30%]'>
+                    <div className='grid grid-cols-1 gap-4 my-2 ml-12 w-[30%]'>
                         {trackData.map((track)=>{
                             return (
                                 <Track key = {track.id} track={track}/>

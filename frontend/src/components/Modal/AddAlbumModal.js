@@ -7,6 +7,7 @@ import { useQueryClient} from "react-query";
 import useAddAlbumMutation from "../../hooks/useAddAlbumMutation";
 import useDeleteAlbumMutation from "../../hooks/useDeleteAlbumMutation";
 import useUpdateAlbumMutation from "../../hooks/useUpdateAlbumMutation";
+import AddButton from "../Buttons/AddButton";
 
 const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
     const fileRef = useRef();
@@ -21,18 +22,26 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
     const [imageChanged, setImageChanged] = useState(false);
 
     useEffect(()=>{
-        if (album && !isAdd) {
+        if (isAdd) {
+            setInitialState(null);
+            setName('');
+            setIsPublic(false);
+            setSelectedList([]);
+            setImage(null);
+            setImagePreview(null);
+        }
+        else if (album && !isAdd) {
             setInitialState({
-                name: album.name || '',
-                isPublic: album.isPublic || false,
-                collaborators: album.collaborators || [],
-                image: album.image || null,
+                name: album?.name || '',
+                isPublic: album?.isPublic || false,
+                collaborators: album?.collaborators || [],
+                image: album?.image || null,
             })
-            setName(album.name || '');
-            setIsPublic(album.isPublic || false);
-            setSelectedList(album.collaborators || []);
-            setImage(album.image || null);
-            setImagePreview(album.image || null);
+            setName(album?.name || '');
+            setIsPublic(album?.isPublic || false);
+            setSelectedList(album?.collaborators || []);
+            setImage(album?.image || null);
+            setImagePreview(album?.image || null);
         }
     },[album,isAdd,visible]);
 
@@ -163,40 +172,10 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
                 </div>
                 <div className="flex justify-end items-end gap-2">
                     {isAdd ?
-                        <button
-                            disabled={name===''}
-                            className=
-                            {`rounded-md 
-                            w-[80px]
-                            px-2 
-                            border-2 
-                            ${(name==='') ? 'opacity-20' : ''}
-                            border-green-500 
-                            bg-green-500
-                            hover:border-green-600
-                            hover:bg-green-600
-                            text-white 
-                            text-center`} 
-                            onClick={handleSubmit}>
-                            Add
-                        </button> :
-                        <button
-                            disabled={updateDisabled}
-                            className=
-                            {`rounded-md 
-                            w-[80px]
-                            px-2 
-                            border-2 
-                            ${updateDisabled ? 'opacity-20' : ''}
-                            border-green-500 
-                            bg-green-500
-                            hover:border-green-600
-                            hover:bg-green-600
-                            text-white 
-                            text-center`} 
-                            onClick={handleSubmit}>
-                            Update
-                        </button>}
+                    <AddButton disabled={name===''} text="Add" handleSubmit={handleSubmit}/>
+                        :
+                    <AddButton disabled={updateDisabled} text="Update" handleSubmit={handleSubmit}/>
+                    }
                     {!isAdd && <button className=
                         {`rounded-md 
                         w-[80px]

@@ -3,10 +3,10 @@ import { IconContext } from "react-icons";
 import { IoIosAlbums } from "react-icons/io";
 import { BsThreeDotsVertical } from "react-icons/bs";
 
-const AlbumRow = ({album,setAlbumDetailsVisible,setSelectedAlbum}) => {
+const AlbumRow = ({album,handleUpdate,setSelectedAlbum}) => {
     const handleClick = () => {
         setSelectedAlbum(album);
-        setAlbumDetailsVisible(true);
+        handleUpdate();
     } 
     return (
         <div

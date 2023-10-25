@@ -3,10 +3,42 @@ import { IconContext } from "react-icons";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import ProfileInput from "./Inputs/ProfileInput";
+import { useAuth } from "../context/AuthProvider";
+import { useQueryClient } from "react-query";
 
 const UserPage = () => {
     const {expand} = useExpand();
+    const {setIsSignedIn} = useAuth();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+
+    async function logout(e) {
+        e.preventDefault();
+        const apiUrl =process.env.REACT_APP_API_URL+'logout/'; 
+      
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: "include",
+            });
+      
+            if (!response.ok) {
+                throw new Error('Logout failed');
+            }
+            
+            const responseData = await response.json();
+            setIsSignedIn(false);
+            queryClient.clear();
+            return responseData;
+        } 
+        catch (error) {
+            console.error('Error register:', error);
+            throw error;
+        }
+    }
     return (
         <div className=
             {`w-full 
@@ -54,7 +86,8 @@ const UserPage = () => {
                         <ProfileInput id='profileEmail' name='Email' type='email' autoComplete='on' 
                             value='test@test.com'/>
                         <div className="pt-4 flex flex-row justify-between items-center">
-                            <button className="bg-red-600 text-white px-3 py-2 rounded-md">
+                            <button onClick={logout}
+                                className="bg-red-600 text-white px-3 py-2 rounded-md">
                                 Sign out
                             </button>
                             <button className="bg-green-600 text-white px-3 py-2 rounded-md">

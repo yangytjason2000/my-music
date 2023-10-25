@@ -7,14 +7,25 @@ import AlbumRow from './RowComponent/AlbumRow';
 import AddAlbumModal from './Modal/AddAlbumModal';
 import { useQuery } from 'react-query';
 import fetchAlbumList from '../fetchAPI/fetchAlbumList';
+import { useAuth } from '../context/AuthProvider';
 
 const Home = () => {
+    const {isSignedIn} = useAuth();
     const [selectedAlbum, setSelectedAlbum] = useState(null);
-    const {data: albums = []} = useQuery('albums',fetchAlbumList);
-    const [addAlbumVisible,setAddAlbumVisible] = useState(false);
-    const [changeAlbumVisible,setChangeAlbumVisible] = useState(false);
+    const {data: albums = []} = useQuery('albums',fetchAlbumList, {enabled: isSignedIn});
+    const [modalVisible,setModalVisible] = useState(false);
+    const [isAdd,setIsAdd] = useState(false);
     const {expand} = useExpand();
 
+    const handleAdd = () => {
+        setIsAdd(true);
+        setModalVisible(true);
+    }
+
+    const handleUpdate = () => {
+        setIsAdd(false);
+        setModalVisible(true);
+    }
     return (
         <div className=
             {`w-full 
@@ -37,20 +48,15 @@ const Home = () => {
                                 <AlbumRow 
                                     key={index} 
                                     album={album} 
-                                    setAlbumDetailsVisible={setChangeAlbumVisible}
+                                    handleUpdate={handleUpdate}
                                     setSelectedAlbum={setSelectedAlbum}/> 
                             )})
                         }
                         <AddAlbumModal 
-                            visible={changeAlbumVisible} 
-                            onClose={()=>setChangeAlbumVisible(false)} 
+                            visible={modalVisible} 
+                            onClose={()=>setModalVisible(false)} 
                             album={selectedAlbum}
-                            isAdd={false}
-                        />
-                        <AddAlbumModal 
-                            visible={addAlbumVisible} 
-                            onClose={()=>setAddAlbumVisible(false)}
-                            isAdd={true}
+                            isAdd={isAdd}
                         />
 
                         <div
@@ -66,7 +72,7 @@ const Home = () => {
                                 text-center
                                 h-[200px]
                             `}>
-                            <span onClick={()=>setAddAlbumVisible(!addAlbumVisible)} 
+                            <span onClick={handleAdd} 
                                 className='hover:scale-[110%] duration-300 cursor-pointer'>
                                 <IconContext.Provider value={{ size: "5em", color: "gray" }}>
                                     <MdAdd />

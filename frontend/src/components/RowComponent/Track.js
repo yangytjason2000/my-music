@@ -17,6 +17,8 @@ const Track = ({track}) => {
             duration-300
             cursor-pointer
             gap-2
+            ml-2
+            pl-2
         `}>
             <TrackLabel track={track}/>
         </div> 

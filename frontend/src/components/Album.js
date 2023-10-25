@@ -8,13 +8,28 @@ import { useState } from 'react';
 import AddSongModal from './Modal/AddSongModal';
 import fetchSongList from '../fetchAPI/fetchSongList';
 import { useQuery } from 'react-query';
+import { useAuth } from '../context/AuthProvider';
 const Album = () => {
-    const [addSongVisible,setAddSongVisible] = useState(false);
+    const [modalVisible,setModalVisible] = useState(false);
     const {expand} = useExpand();
     const {id} = useParams();
+    const [selectedSong,setSelectedSong] = useState(null);
+    const [isAdd,setIsAdd] = useState(false)
     //fetch song list based on id
-    const {data: songList = []} = useQuery(['songs',id],fetchSongList);
+    const {isSignedIn} = useAuth();
+    const {data: songList = []} = useQuery(['songs',id],fetchSongList, {enabled: isSignedIn});
     const navigate = useNavigate();
+
+    const handleAdd = () => {
+        setIsAdd(true);
+        setModalVisible(true);
+    }
+
+    const handleUpdate = () => {
+        setIsAdd(false);
+        setModalVisible(true);
+    }
+
     return (
         <div className=
             {`w-full 
@@ -47,10 +62,20 @@ const Album = () => {
                         >
                             {songList.map((song)=>{
                                 return (
-                                    <SongRow key={song.id} albumId={id} song={song}/>
+                                    <SongRow key={song.id} 
+                                        albumId={id} 
+                                        song={song} 
+                                        handleUpdate={handleUpdate}
+                                        setSelectedSong={setSelectedSong}/>
                                 )})
                             }
-                            <AddSongModal visible={addSongVisible} onClose={()=>setAddSongVisible(false)} id={Number(id)}/>
+                            <AddSongModal 
+                                visible={modalVisible} 
+                                onClose={()=>setModalVisible(false)} 
+                                id={Number(id)} 
+                                song={selectedSong}
+                                isAdd={isAdd}
+                            />
                             <div
                                 className={`
                                     bg-white
@@ -64,7 +89,7 @@ const Album = () => {
                                     text-center
                                     h-[100px]
                                 `}>
-                                <span onClick={()=>setAddSongVisible(true)} 
+                                <span onClick={handleAdd} 
                                     className='hover:scale-[110%] duration-300 cursor-pointer'>
                                     <IconContext.Provider value={{ size: "5em", color: "gray" }}>
                                         <MdAdd />

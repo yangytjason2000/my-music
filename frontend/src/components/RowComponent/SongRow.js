@@ -2,28 +2,33 @@ import { Link } from "react-router-dom";
 import { IconContext } from "react-icons";
 import {AiFillPlayCircle } from "react-icons/ai";
 import { BiSolidAlbum } from "react-icons/bi";
+import { BsThreeDotsVertical } from "react-icons/bs";
 import { Fragment } from "react";
 
-const SongRow = ({albumId, song}) => {
+const SongRow = ({albumId, song, handleUpdate, setSelectedSong}) => {
+    const handleClick = () => {
+        setSelectedSong(song);
+        handleUpdate();
+    }
     return (
-        <Link key={song.id} to={`/album/${albumId}/${song.id}`}>
-            <div
-                key = {song.id}
-                className={`
-                    bg-white
-                    shadow-lg 
-                    container 
-                    rounded-md 
-                    flex 
-                    justify-between
-                    items-center
-                    text-center
-                    h-[80px]
-                    hover:scale-[102%]
-                    duration-300
-                    cursor-pointer
-                    gap-2
-                `}>
+        <div
+            key = {song.id}
+            className={`
+                bg-white
+                shadow-lg 
+                container 
+                rounded-md 
+                flex 
+                justify-between
+                items-center
+                text-center
+                h-[80px]
+                hover:scale-[102%]
+                duration-300
+                cursor-pointer
+                gap-2
+            `}>
+            <Link key={song.id} to={`/album/${albumId}/${song.id}`}>
                 <div className='flex flex-row justify-center items-center'>
                     <span>
                         <IconContext.Provider 
@@ -50,13 +55,22 @@ const SongRow = ({albumId, song}) => {
                         }
                     </div>
                 </div>
+            </Link>
+            <div className="justify-center items-center">
                 <button className='pr-4'>
                     <IconContext.Provider value={{ size: "3em", color: "#27AE60" }}>
                         <AiFillPlayCircle />
                     </IconContext.Provider>
                 </button>
+                <button onClick={handleClick} type='button' 
+                    className="">
+                    <IconContext.Provider 
+                        value={{ size: "1.5em", color: 'black' }}>
+                        <BsThreeDotsVertical/>
+                    </IconContext.Provider>
+                </button>   
             </div>
-        </Link>
+        </div>
     );
 }
 
