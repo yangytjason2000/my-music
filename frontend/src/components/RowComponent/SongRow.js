@@ -23,9 +23,7 @@ const SongRow = ({albumId, song, handleUpdate, setSelectedSong}) => {
                 items-center
                 text-center
                 h-[80px]
-                hover:scale-[102%]
                 duration-300
-                cursor-pointer
                 gap-2
             `}>
             <Link key={song.id} to={`/album/${albumId}/${song.id}`}>
@@ -56,17 +54,17 @@ const SongRow = ({albumId, song, handleUpdate, setSelectedSong}) => {
                     </div>
                 </div>
             </Link>
-            <div className="justify-center items-center">
+            <div className="flex flex-row justify-center items-center">
                 <button className='pr-4'>
-                    <IconContext.Provider value={{ size: "3em", color: "#27AE60" }}>
-                        <AiFillPlayCircle />
+                    <IconContext.Provider value={{ className: 'shadow-icon', size: "3em", color: "#27AE60" }}>
+                        <AiFillPlayCircle className="hover:scale-110 duration-300"/>
                     </IconContext.Provider>
                 </button>
                 <button onClick={handleClick} type='button' 
                     className="">
                     <IconContext.Provider 
                         value={{ size: "1.5em", color: 'black' }}>
-                        <BsThreeDotsVertical/>
+                        <BsThreeDotsVertical className="hover:scale-[130%] duration-300"/>
                     </IconContext.Provider>
                 </button>   
             </div>

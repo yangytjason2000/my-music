@@ -144,7 +144,7 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
             <div className={`bg-gray-700 p-8 rounded-lg overflow-auto w-[500px] ${visible? 'scale-100' : 'scale-0'} duration-300`}>
                 <div className="pb-6">
                     <h2 className="text-2xl font-bold text-white inline">
-                        Create your album
+                        {isAdd ? 'Create your album' : 'Modify your album'}
                     </h2>
                     <Input 
                         id={isAdd ? 'newAlbumName' : 'albumName'}

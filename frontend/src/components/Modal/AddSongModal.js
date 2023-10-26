@@ -81,7 +81,7 @@ const AddSongModal = ({visible,onClose,id,song,isAdd}) => {
             <div className={`bg-gray-700 p-8 rounded-lg w-[500px] ${visible? 'scale-100' : 'scale-0'} duration-300`}>
                 <div className="pb-6">
                     <h2 className="text-2xl font-bold text-white inline">
-                        Create your song
+                        {isAdd ? 'Create your song' : 'Modify your song'}
                     </h2>
                     <Input 
                         id={isAdd ? 'newsongname' : 'songname'} 
