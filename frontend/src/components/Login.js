@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "./Buttons/button";
 import Input from "./Inputs/Input";
 import { useAuth } from "../context/AuthProvider";
+import toast from 'react-hot-toast';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -19,7 +20,6 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-
         try {
             if (signIn){
                 const responseData = await signInUser(email, password);
@@ -57,14 +57,17 @@ const Login = () => {
             });
       
             if (!response.ok) {
+                toast.error('Failed to register');
                 throw new Error('Register failed');
             }
             
             const responseData = await response.json();
             setSignIn(true);
+            toast.success('Register Success');
             return responseData;
         } 
         catch (error) {
+            toast.error('Failed to register');
             console.error('Error register:', error);
             throw error;
         }
@@ -88,14 +91,17 @@ const Login = () => {
             });
       
             if (!response.ok) {
+                toast.error(`Failed to sign in`);
                 throw new Error('Sign-in failed');
             }
       
             const responseData = await response.json();
             setIsSignedIn(true);
+            toast.success('Sign In Success');
             return responseData;
         } 
         catch (error) {
+            toast.error(`Failed to sign in`);
             console.error('Error signing in:', error);
             throw error;
         }

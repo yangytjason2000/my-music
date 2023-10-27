@@ -1,4 +1,5 @@
 import { useMutation } from "react-query";
+import toast from "react-hot-toast";
 
 const useAddSongMutation = (handleClose,queryClient) => {
     return useMutation(async (songData) => {
@@ -14,10 +15,12 @@ const useAddSongMutation = (handleClose,queryClient) => {
         
         if (response.ok){
             const res = await response.json();
+            toast.success('Successfully added a song');
             console.log(res);
             return res;
         }
         else{
+            toast.error("Can't add new song")
             console.error("can't add new song");
         }
     }, {
@@ -27,7 +30,8 @@ const useAddSongMutation = (handleClose,queryClient) => {
             handleClose();
         },
         onError: (error) => {
-            console.error('Failed to add new song: ',error);
+            toast.error('Failed to add a new song')
+            console.error('Failed to add a new song: ',error);
         }
     }
 );

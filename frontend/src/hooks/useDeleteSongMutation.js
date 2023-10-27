@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { useMutation } from "react-query";
 
 const useDeleteSongMutation = (handleClose,queryClient) => {
@@ -14,10 +15,12 @@ const useDeleteSongMutation = (handleClose,queryClient) => {
         
         if (response.ok){
             const res = await response.json();
+            toast.success('Successfully delete the song!');
             console.log(res);
             return res;
         }
         else{
+            toast.error('Failed to delete the song');
             console.error("can't delete the song");
         }
     }, {
@@ -27,6 +30,7 @@ const useDeleteSongMutation = (handleClose,queryClient) => {
             handleClose();
         },
         onError: (error) => {
+            toast.error('Failed to delete the song');
             console.error('Failed to delete a song: ',error);
         }
     }

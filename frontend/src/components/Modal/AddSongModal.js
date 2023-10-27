@@ -4,12 +4,16 @@ import useAddSongMutation from "../../hooks/useAddSongMutation";
 import { useQueryClient } from "react-query";
 import AddButton from "../Buttons/AddButton";
 import useDeleteSongMutation from "../../hooks/useDeleteSongMutation";
+import { useAuth } from "../../context/AuthProvider";
+import toast from "react-hot-toast";
+import useUpdateSongMutation from "../../hooks/useUpdateSongMutation";
 
 const AddSongModal = ({visible,onClose,id,song,isAdd}) => {
     const queryClient = useQueryClient();
     const [name,setName] = useState('');
     const [initialState,setInitialState] = useState(song);
     const [updateDisabled,setUpdateDisabled] = useState(true);
+    const {isSignedIn} = useAuth();
 
     useEffect(()=>{
         if (isAdd){
@@ -49,14 +53,29 @@ const AddSongModal = ({visible,onClose,id,song,isAdd}) => {
     }
     const addSongMutation = useAddSongMutation(handleClose,queryClient);
     const deleteSongMutation = useDeleteSongMutation(handleClose,queryClient);
-
+    const updateSongMutation = useUpdateSongMutation(handleClose,queryClient);
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const requestBody = {
+        if (!isSignedIn){
+            toast.error('You must sign in to add a new song!');
+            onClose();
+            return;
+        }
+        const requestBody = isAdd ? {
             name: name,
             album_id: id,
+        } : {
+            id: song.id,
+            name: name,
+            artists: [],
+            album_id: id,
         };
-        addSongMutation.mutate(requestBody);
+        if (isAdd){
+            addSongMutation.mutate(requestBody);
+        }
+        else {
+            updateSongMutation.mutate(requestBody);
+        }
     }
 
     const handleDelete = async () => {

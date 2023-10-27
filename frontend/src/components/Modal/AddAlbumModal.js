@@ -8,6 +8,8 @@ import useAddAlbumMutation from "../../hooks/useAddAlbumMutation";
 import useDeleteAlbumMutation from "../../hooks/useDeleteAlbumMutation";
 import useUpdateAlbumMutation from "../../hooks/useUpdateAlbumMutation";
 import AddButton from "../Buttons/AddButton";
+import { useAuth } from "../../context/AuthProvider";
+import toast from "react-hot-toast";
 
 const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
     const fileRef = useRef();
@@ -20,6 +22,7 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
     const [initialState,setInitialState] = useState(album);
     const [updateDisabled,setUpdateDisabled] = useState(true);
     const [imageChanged, setImageChanged] = useState(false);
+    const {isSignedIn} = useAuth();
 
     useEffect(()=>{
         if (isAdd) {
@@ -78,6 +81,11 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
     const handleImageSubmit = (e) => {
         const file = e.target.files[0];
 
+        if (!isSignedIn) {
+            toast.error('You must sign in to upload image!');
+            fileRef.current.value = "";
+            return;
+        }
         if (file) {
             const fileType = file['type'];
             const validImageTypes = ['image/gif', 'image/jpeg', 'image/png'];
@@ -106,6 +114,11 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
     
     const handleSubmit = async (event) => {
         event.preventDefault();
+        if (!isSignedIn) {
+            toast.error('You must sign in to add an album!');
+            onClose();
+            return;
+        }
         const formData = new FormData();
         if (!isAdd){
             formData.append('id',album.id);

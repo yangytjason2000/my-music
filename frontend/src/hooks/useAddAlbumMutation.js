@@ -1,4 +1,5 @@
 import { useMutation } from "react-query";
+import toast from "react-hot-toast";
 
 const useAddAlbumMutation = (handleClose,queryClient) => {
     return useMutation(async (formData) => {
@@ -11,10 +12,12 @@ const useAddAlbumMutation = (handleClose,queryClient) => {
         
         if (response.ok){
             const res = await response.json();
+            toast.success('Succesfully added an album!');
             console.log(res);
             return res;
         }
         else{
+            toast.error("Failed to add a new album");
             console.error("can't add new album");
         }
     }, {
@@ -24,6 +27,7 @@ const useAddAlbumMutation = (handleClose,queryClient) => {
             handleClose();
         },
         onError: (error) => {
+            toast.error("Failed to add a new album");
             console.error('Failed to add new album: ',error);
         }
     }

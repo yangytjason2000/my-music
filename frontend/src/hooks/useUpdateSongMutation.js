@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { useMutation } from "react-query";
 
 const useUpdateSongMutation = (handleClose,queryClient) => {
@@ -14,10 +15,12 @@ const useUpdateSongMutation = (handleClose,queryClient) => {
         
         if (response.ok){
             const res = await response.json();
+            toast.success('Successfully updated the song!');
             console.log(res);
             return res;
         }
         else{
+            toast.error('Failed to update the song');
             console.error("can't update a song");
         }
     }, {
@@ -27,6 +30,7 @@ const useUpdateSongMutation = (handleClose,queryClient) => {
             handleClose();
         },
         onError: (error) => {
+            toast.error('Failed to update the song');
             console.error('Failed to update a song: ',error);
         }
     }

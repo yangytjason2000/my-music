@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { useMutation } from "react-query";
 
 const useUpdateAlbumMutation = (handleClose,queryClient) => {
@@ -11,10 +12,12 @@ const useUpdateAlbumMutation = (handleClose,queryClient) => {
         
         if (response.ok){
             const res = await response.json();
+            toast.success("Successfully updated!");
             console.log(res);
             return res;
         }
         else{
+            toast.error("Failed to update the album");
             console.error("can't update the album");
         }
     }, {
@@ -24,6 +27,7 @@ const useUpdateAlbumMutation = (handleClose,queryClient) => {
             handleClose();
         },
         onError: (error) => {
+            toast.error("Failed to update the album");
             console.error('Failed to update the album: ',error);
         }
     }

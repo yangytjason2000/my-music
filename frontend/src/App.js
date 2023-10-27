@@ -9,6 +9,7 @@ import Song from './components/Song';
 import Login from './components/Login';
 import UserPage from './components/UserPage';
 import ProtectedRoute from './ProtectedRoute';
+import { Toaster } from 'react-hot-toast';
 
 function MainLayout() {
   return (
@@ -31,6 +32,14 @@ function MainLayout() {
 function App() {
   return (
     <div>
+      <Toaster
+        position='top-center'
+        toastOptions={{
+          style: {
+            zIndex: 9999,
+          },
+        }}
+      />
       <Routes>
         <Route path='*' element={<MainLayout/>}/>
         <Route path='/login' 

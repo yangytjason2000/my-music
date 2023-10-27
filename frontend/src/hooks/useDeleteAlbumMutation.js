@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { useMutation } from "react-query";
 
 const useDeleteAlbumMutation = (handleClose,queryClient) => {
@@ -11,9 +12,11 @@ const useDeleteAlbumMutation = (handleClose,queryClient) => {
         
         if (response.ok){
             const res = await response.json();
+            toast.success('Successfully delete the album!');
             return res;
         }
         else{
+            toast.error('Failed to delete the album');
             console.error("can't add new album");
         }
     }, {
@@ -23,6 +26,7 @@ const useDeleteAlbumMutation = (handleClose,queryClient) => {
             handleClose();
         },
         onError: (error) => {
+            toast.error('Failed to delete the album');
             console.error('Failed to delete a album: ',error);
         }
     }

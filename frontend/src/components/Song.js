@@ -8,6 +8,7 @@ import Track from "./RowComponent/Track";
 const Song = () => {
     const {expand} = useExpand();
     const {songid} = useParams();
+    console.log(songid);
     const navigate = useNavigate();
 
     return (

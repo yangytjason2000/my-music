@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import ProfileInput from "./Inputs/ProfileInput";
 import { useAuth } from "../context/AuthProvider";
 import { useQueryClient } from "react-query";
+import toast from "react-hot-toast";
 
 const UserPage = () => {
     const {expand} = useExpand();
@@ -26,16 +27,19 @@ const UserPage = () => {
             });
       
             if (!response.ok) {
+                toast.error("Logout failed");
                 throw new Error('Logout failed');
             }
             
             const responseData = await response.json();
             setIsSignedIn(false);
+            toast.success("Logout Success!");
             queryClient.clear();
             return responseData;
         } 
         catch (error) {
-            console.error('Error register:', error);
+            toast.error("Logout failed!");
+            console.error('Logout Error', error);
             throw error;
         }
     }
