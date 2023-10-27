@@ -17,7 +17,6 @@ const ProfileInput = ({id,name,type, autoComplete, value, onChange}) => {
                 value={value}
                 onChange={onChange}
                 autoComplete={autoComplete}
-                readOnly
                 className={`
                 bg-[#121212]
                     border

@@ -1,4 +1,6 @@
 import { createContext,useContext,useState, useEffect} from "react";
+import { useQuery } from "react-query";
+import fetchUserInfo from "../fetchAPI/fetchUserInfo";
 
 const AuthContext = createContext();
 
@@ -8,6 +10,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({children}) => {
     const [isSignedIn,setIsSignedIn] = useState(false);
+    const { data: user_info = {username: "", email: ""}} = useQuery('user_info', fetchUserInfo, {enabled: isSignedIn});
     useEffect(()=>{
         async function fetchStatus(){
             const apiUrl =process.env.REACT_APP_API_URL+'user_status/';
@@ -31,7 +34,7 @@ export const AuthProvider = ({children}) => {
         fetchStatus();
     },[]);
     return (
-        <AuthContext.Provider value = {{isSignedIn,setIsSignedIn}}>
+        <AuthContext.Provider value = {{isSignedIn,setIsSignedIn,user_info}}>
             {children}
         </AuthContext.Provider>
     )

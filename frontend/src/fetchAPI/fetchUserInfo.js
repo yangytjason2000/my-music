@@ -10,8 +10,7 @@ async function fetchUserInfo(){
             alert('Fetch User Info Failed')
         }
         const responseData = await response.json();
-        const songList = responseData['songs'];
-        return songList;
+        return responseData;
     }
     catch (error){
         console.error(error)

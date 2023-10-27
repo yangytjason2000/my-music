@@ -140,7 +140,6 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
         const formData = new FormData();
         formData.append('id',album.id);
         deleteAlbumMutation.mutate(formData);
-        URL.revokeObjectURL(album.image);
     }
 
     return (

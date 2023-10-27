@@ -6,13 +6,42 @@ import ProfileInput from "./Inputs/ProfileInput";
 import { useAuth } from "../context/AuthProvider";
 import { useQueryClient } from "react-query";
 import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
+import useUpdateUserMutation from "../hooks/useUpdateUserMutation";
 
 const UserPage = () => {
     const {expand} = useExpand();
-    const {setIsSignedIn} = useAuth();
+    const {setIsSignedIn,user_info} = useAuth();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const [userEmail,setUserEmail] = useState("");
+    const [initialState,setInitialState] = useState({});
+    const [updateDisabled, setUpdateDisabled] = useState(true);
 
+    useEffect(()=> {
+        setUserEmail(user_info.email);
+        setInitialState({
+            email: user_info.email,
+        });
+    },[user_info]);
+
+    useEffect(()=>{
+        if (userEmail!==initialState.email){
+            setUpdateDisabled(false);
+        }
+        else{
+            setUpdateDisabled(true);
+        }
+    },[userEmail,initialState])
+
+    const updateUserMutation = useUpdateUserMutation(queryClient);
+    async function handleSaveFile(e){
+        e.preventDefault();
+        const requestBody = {
+            email: userEmail,
+        }
+        updateUserMutation.mutate(requestBody);
+    }
     async function logout(e) {
         e.preventDefault();
         const apiUrl =process.env.REACT_APP_API_URL+'logout/'; 
@@ -58,6 +87,7 @@ const UserPage = () => {
                 pt-[120px]
                 ${expand ? 'pb-[90px]' : ''}
                 duration-300
+                overflow-auto
             `}>
                 <div className="bg-[#121212] h-full rounded-lg overflow-auto flex justify-center items-start pt-10 relative">
                     <span onClick={()=>navigate(-1)} 
@@ -84,17 +114,26 @@ const UserPage = () => {
                                 Username
                             </label>
                             <p className="block pt-2 text-sm text-white pb-4">
-                                username
+                                {user_info.username}
                             </p>
                         </div>
                         <ProfileInput id='profileEmail' name='Email' type='email' autoComplete='on' 
-                            value='test@test.com'/>
+                            value={userEmail} onChange={(e)=>setUserEmail(e.target.value)}/>
                         <div className="pt-4 flex flex-row justify-between items-center">
                             <button onClick={logout}
                                 className="bg-red-600 text-white px-3 py-2 rounded-md">
                                 Sign out
                             </button>
-                            <button className="bg-green-600 text-white px-3 py-2 rounded-md">
+                            <button disabled={updateDisabled} 
+                                onClick={handleSaveFile}
+                                className=
+                                {`bg-green-600 
+                                text-white 
+                                px-3 
+                                py-2 
+                                rounded-md
+                                ${(updateDisabled) ? 'opacity-20' : ''}
+                                `}>
                                 Save Profile
                             </button>
                         </div>
