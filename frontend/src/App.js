@@ -6,7 +6,7 @@ import Album from './components/Album';
 import MusicPlayer from './components/MusicPlayer';
 import { Route, Routes } from "react-router-dom";
 import Song from './components/Song';
-import Login from './components/Login';
+import LoginPage from './components/LoginPage';
 import UserPage from './components/UserPage';
 import ProtectedRoute from './ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
@@ -43,7 +43,7 @@ function App() {
       <Routes>
         <Route path='*' element={<MainLayout/>}/>
         <Route path='/login' 
-          element={<ProtectedRoute redirectTo='/' authenticated={false}><Login/></ProtectedRoute>}
+          element={<ProtectedRoute redirectTo='/' authenticated={false}><LoginPage/></ProtectedRoute>}
         />
       </Routes>
     </div>

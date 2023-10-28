@@ -6,72 +6,96 @@ import ProfileInput from "./Inputs/ProfileInput";
 import { useAuth } from "../context/AuthProvider";
 import { useQueryClient } from "react-query";
 import toast from "react-hot-toast";
-import { useEffect, useState } from "react";
+import FileInput from "./Inputs/FileInput";
+import { useEffect, useRef, useState } from "react";
 import useUpdateUserMutation from "../hooks/useUpdateUserMutation";
+import useUpdateUserImageMutation from "../hooks/useUpdateUserImageMutation";
+import logout from "./Actions/Logout";
 
 const UserPage = () => {
+    const fileRef = useRef();
     const {expand} = useExpand();
-    const {setIsSignedIn,user_info} = useAuth();
+    const {isSignedIn,setIsSignedIn,user_info,user_image} = useAuth();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [userEmail,setUserEmail] = useState("");
     const [initialState,setInitialState] = useState({});
-    const [updateDisabled, setUpdateDisabled] = useState(true);
+    const [infoChanged, setInfoChanged] = useState(false);
 
+    const [imageChanged,setImageChanged] = useState(false);
+    const [imagePreview,setImagePreview] = useState(user_image);
+    const [image,setImage] = useState(null);
+
+    // Initialize user info and user image
     useEffect(()=> {
         setUserEmail(user_info.email);
         setInitialState({
             email: user_info.email,
         });
-    },[user_info]);
+    },[user_info.email]);
 
+    // Check whether the info has been changed
     useEffect(()=>{
         if (userEmail!==initialState.email){
-            setUpdateDisabled(false);
+            setInfoChanged(true);
         }
         else{
-            setUpdateDisabled(true);
+            setInfoChanged(false);
         }
     },[userEmail,initialState])
+    // Handle image file upload
+    const handleImageSubmit = (e) => {
+        const file = e.target.files[0];
+
+        if (!isSignedIn) {
+            toast.error('You must sign in to upload image!');
+            fileRef.current.value = "";
+            return;
+        }
+        if (file) {
+            const fileType = file['type'];
+            const validImageTypes = ['image/gif', 'image/jpeg', 'image/png'];
+
+            if (validImageTypes.includes(fileType)){
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setImagePreview(reader.result);
+                }
+                reader.readAsDataURL(file);
+
+                setImage(file);
+                setImageChanged(true);
+            }
+            else {
+                if (fileRef.current) {
+                    fileRef.current.value = "";
+                }
+                alert("Error: Please upload a valid image file (e.g., jpg, gif, png).");
+            }
+        }
+    }
 
     const updateUserMutation = useUpdateUserMutation(queryClient);
+    const updateUserImageMutation = useUpdateUserImageMutation(queryClient);
+
     async function handleSaveFile(e){
         e.preventDefault();
         const requestBody = {
             email: userEmail,
         }
-        updateUserMutation.mutate(requestBody);
-    }
-    async function logout(e) {
-        e.preventDefault();
-        const apiUrl =process.env.REACT_APP_API_URL+'logout/'; 
-      
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: "include",
-            });
-      
-            if (!response.ok) {
-                toast.error("Logout failed");
-                throw new Error('Logout failed');
-            }
-            
-            const responseData = await response.json();
-            setIsSignedIn(false);
-            toast.success("Logout Success!");
-            queryClient.clear();
-            return responseData;
-        } 
-        catch (error) {
-            toast.error("Logout failed!");
-            console.error('Logout Error', error);
-            throw error;
+        const formData = new FormData();
+        formData.append('image',image);
+        if (infoChanged){
+            updateUserMutation.mutate(requestBody);
+            setInfoChanged(false);
+        }
+        if (imageChanged) {
+            updateUserImageMutation.mutate(formData);
+            setImageChanged(false);
+            fileRef.current.value="";
         }
     }
+
     return (
         <div className=
             {`w-full 
@@ -117,14 +141,22 @@ const UserPage = () => {
                                 {user_info.username}
                             </p>
                         </div>
+                        <FileInput 
+                            ref = {fileRef}
+                            id='userimage'
+                            name='User Avatar'
+                            type='file'
+                            onChange={handleImageSubmit}
+                            imagePreview={imagePreview}
+                        />
                         <ProfileInput id='profileEmail' name='Email' type='email' autoComplete='on' 
                             value={userEmail} onChange={(e)=>setUserEmail(e.target.value)}/>
                         <div className="pt-4 flex flex-row justify-between items-center">
-                            <button onClick={logout}
+                            <button onClick={(e)=>logout(e,setIsSignedIn,queryClient)}
                                 className="bg-red-600 text-white px-3 py-2 rounded-md">
                                 Sign out
                             </button>
-                            <button disabled={updateDisabled} 
+                            <button disabled={infoChanged && imageChanged} 
                                 onClick={handleSaveFile}
                                 className=
                                 {`bg-green-600 
@@ -132,7 +164,7 @@ const UserPage = () => {
                                 px-3 
                                 py-2 
                                 rounded-md
-                                ${(updateDisabled) ? 'opacity-20' : ''}
+                                ${(!infoChanged && !imageChanged) ? 'opacity-20' : ''}
                                 `}>
                                 Save Profile
                             </button>

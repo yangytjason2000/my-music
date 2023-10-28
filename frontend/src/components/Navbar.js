@@ -7,7 +7,7 @@ import placeHolder from '../assets/placeholder.png'
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthProvider';
 const Navbar = () => {
-    const {isSignedIn} = useAuth();
+    const {isSignedIn,user_image} = useAuth();
     const [navVisible,setNavVisible] = useState(false);
     const handleClick = () => {
         setNavVisible(navVisible=>!navVisible);
@@ -32,13 +32,19 @@ const Navbar = () => {
             <div>
                 {isSignedIn ?
                 <Link to='/user_page'>
-                    {
-                    <img 
-                        src={placeHolder} 
-                        alt="placehoder"
+                    {user_image ? 
+                        <img 
+                        src={user_image} 
+                        alt="user_avatar"
                         className='cursor-pointer rounded-full hover:scale-110 duration-300'
                         style={{width:'70px'}}>
-                    </img>
+                        </img> :
+                        <img 
+                            src={placeHolder} 
+                            alt="placehoder"
+                            className='cursor-pointer rounded-full hover:scale-110 duration-300'
+                            style={{width:'70px'}}>
+                        </img>
                     }
                 </Link> :
                 <Link to='/login'>

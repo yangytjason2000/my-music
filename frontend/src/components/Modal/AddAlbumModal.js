@@ -17,11 +17,13 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
     const [name,setName] = useState('');
     const [isPublic,setIsPublic] = useState(false);
     const [selectedList, setSelectedList] = useState([]);
+
     const [image,setImage] = useState(null);
     const [imagePreview,setImagePreview] = useState('');
+    const [imageChanged, setImageChanged] = useState(false);
+
     const [initialState,setInitialState] = useState(album);
     const [updateDisabled,setUpdateDisabled] = useState(true);
-    const [imageChanged, setImageChanged] = useState(false);
     const {isSignedIn} = useAuth();
 
     useEffect(()=>{
@@ -78,6 +80,7 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
         fileRef.current.value = "";
         onClose();
     }
+    
     const handleImageSubmit = (e) => {
         const file = e.target.files[0];
 

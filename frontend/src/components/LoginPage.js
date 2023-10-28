@@ -5,9 +5,10 @@ import { useNavigate } from "react-router-dom";
 import Button from "./Buttons/button";
 import Input from "./Inputs/Input";
 import { useAuth } from "../context/AuthProvider";
-import toast from 'react-hot-toast';
+import signInUser from "./Actions/Login";
+import registerUser from "./Actions/Register";
 
-const Login = () => {
+const LoginPage = () => {
     const navigate = useNavigate();
     const [username,setUsername] = useState('');
     const [email,setEmail] = useState('');
@@ -22,12 +23,12 @@ const Login = () => {
         setIsLoading(true);
         try {
             if (signIn){
-                const responseData = await signInUser(email, password);
+                const responseData = await signInUser(email,password,setIsSignedIn);
                 console.log(responseData);
                 navigate(-1);
             }
             else {
-                const responseData = await registerUser(username,email, password);
+                const responseData = await registerUser(username, email, password,setSignIn);
                 console.log(responseData);
             }
         } catch (error) {
@@ -37,75 +38,6 @@ const Login = () => {
         }
     }
 
-
-    async function registerUser(username, email, password) {
-        const apiUrl =process.env.REACT_APP_API_URL+'register/'; 
-        const requestBody = {
-            username: username,
-            email: email,
-            password: password,
-        };
-      
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: "include",
-                body: JSON.stringify(requestBody),
-            });
-      
-            if (!response.ok) {
-                toast.error('Failed to register');
-                throw new Error('Register failed');
-            }
-            
-            const responseData = await response.json();
-            setSignIn(true);
-            toast.success('Register Success');
-            return responseData;
-        } 
-        catch (error) {
-            toast.error('Failed to register');
-            console.error('Error register:', error);
-            throw error;
-        }
-    }
-
-
-    async function signInUser(email, password) {
-        const apiUrl =process.env.REACT_APP_API_URL+'login/'; 
-        const requestBody = {
-          email: email,
-          password: password,
-        };
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: "include",
-                body: JSON.stringify(requestBody),
-            });
-      
-            if (!response.ok) {
-                toast.error(`Failed to sign in`);
-                throw new Error('Sign-in failed');
-            }
-      
-            const responseData = await response.json();
-            setIsSignedIn(true);
-            toast.success('Sign In Success');
-            return responseData;
-        } 
-        catch (error) {
-            toast.error(`Failed to sign in`);
-            console.error('Error signing in:', error);
-            throw error;
-        }
-    }
 
     return (
     <div className='w-full h-screen bg-black flex flex-col justify-center text-white items-center'>
@@ -168,4 +100,4 @@ const Login = () => {
     )
 }
 
-export default Login;
+export default LoginPage;
