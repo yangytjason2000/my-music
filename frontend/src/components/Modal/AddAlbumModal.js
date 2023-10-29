@@ -10,6 +10,7 @@ import useUpdateAlbumMutation from "../../hooks/useUpdateAlbumMutation";
 import AddButton from "../Buttons/AddButton";
 import { useAuth } from "../../context/AuthProvider";
 import toast from "react-hot-toast";
+import handleImageSubmit from "../Actions/HandleImageSubmit";
 
 const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
     const fileRef = useRef();
@@ -81,36 +82,6 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
         onClose();
     }
     
-    const handleImageSubmit = (e) => {
-        const file = e.target.files[0];
-
-        if (!isSignedIn) {
-            toast.error('You must sign in to upload image!');
-            fileRef.current.value = "";
-            return;
-        }
-        if (file) {
-            const fileType = file['type'];
-            const validImageTypes = ['image/gif', 'image/jpeg', 'image/png'];
-
-            if (validImageTypes.includes(fileType)){
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    setImagePreview(reader.result);
-                }
-                reader.readAsDataURL(file);
-
-                setImage(file);
-                setImageChanged(true);
-            }
-            else {
-                if (fileRef.current) {
-                    fileRef.current.value = "";
-                }
-                alert("Error: Please upload a valid image file (e.g., jpg, gif, png).");
-            }
-        }
-    }
     const addAlbumMutation = useAddAlbumMutation(handleClose,queryClient);
     const deleteAlbumMutation = useDeleteAlbumMutation(handleClose,queryClient);
     const updateAlbumMutation = useUpdateAlbumMutation(handleClose,queryClient);
@@ -173,7 +144,14 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
                         id={isAdd ? 'newAlbumImage' : 'albumImage'}
                         name='Album Cover'
                         type='file'
-                        onChange={handleImageSubmit}
+                        onChange={(e)=>handleImageSubmit(
+                            e,
+                            isSignedIn,
+                            setImagePreview,
+                            setImage,
+                            setImageChanged,
+                            fileRef
+                        )}
                         imagePreview={imagePreview}
                     />
                     <SelectInput name='Collaborators' selectedList={selectedList} setSelectedList={setSelectedList}/>

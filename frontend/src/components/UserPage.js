@@ -5,12 +5,12 @@ import { useNavigate } from "react-router-dom";
 import ProfileInput from "./Inputs/ProfileInput";
 import { useAuth } from "../context/AuthProvider";
 import { useQueryClient } from "react-query";
-import toast from "react-hot-toast";
 import FileInput from "./Inputs/FileInput";
 import { useEffect, useRef, useState } from "react";
 import useUpdateUserMutation from "../hooks/useUpdateUserMutation";
 import useUpdateUserImageMutation from "../hooks/useUpdateUserImageMutation";
 import logout from "./Actions/Logout";
+import handleImageSubmit from "./Actions/HandleImageSubmit";
 
 const UserPage = () => {
     const fileRef = useRef();
@@ -43,37 +43,6 @@ const UserPage = () => {
             setInfoChanged(false);
         }
     },[userEmail,initialState])
-    // Handle image file upload
-    const handleImageSubmit = (e) => {
-        const file = e.target.files[0];
-
-        if (!isSignedIn) {
-            toast.error('You must sign in to upload image!');
-            fileRef.current.value = "";
-            return;
-        }
-        if (file) {
-            const fileType = file['type'];
-            const validImageTypes = ['image/gif', 'image/jpeg', 'image/png'];
-
-            if (validImageTypes.includes(fileType)){
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    setImagePreview(reader.result);
-                }
-                reader.readAsDataURL(file);
-
-                setImage(file);
-                setImageChanged(true);
-            }
-            else {
-                if (fileRef.current) {
-                    fileRef.current.value = "";
-                }
-                alert("Error: Please upload a valid image file (e.g., jpg, gif, png).");
-            }
-        }
-    }
 
     const updateUserMutation = useUpdateUserMutation(queryClient);
     const updateUserImageMutation = useUpdateUserImageMutation(queryClient);
@@ -146,7 +115,14 @@ const UserPage = () => {
                             id='userimage'
                             name='User Avatar'
                             type='file'
-                            onChange={handleImageSubmit}
+                            onChange={(e)=>handleImageSubmit(
+                                e,
+                                isSignedIn,
+                                setImagePreview,
+                                setImage,
+                                setImageChanged,
+                                fileRef
+                            )}
                             imagePreview={imagePreview}
                         />
                         <ProfileInput id='profileEmail' name='Email' type='email' autoComplete='on' 
