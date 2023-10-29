@@ -1,10 +1,10 @@
 import { toast } from "react-hot-toast";
 import Compressor from 'compressorjs';
 
-const handleImageSubmit = (e, setIsSignedIn, setImagePreview, setImage, setImageChanged, fileRef) => {
+const handleImageSubmit = (e, isSignedIn, setImagePreview, setImage, setImageChanged, fileRef) => {
     const file = e.target.files[0];
 
-    if (!setIsSignedIn) {
+    if (!isSignedIn) {
         toast.error('You must sign in to upload an image!');
         if (fileRef.current) {
             fileRef.current.value = "";

@@ -4,8 +4,8 @@ const Input = ({id,name,type, autoComplete, value, onChange}) => {
             <label
                 className="
                     block
-                    text-sm
-                    font-medium
+                    font-serif
+                    font-bold
                     pt-2
                     text-white
                     "

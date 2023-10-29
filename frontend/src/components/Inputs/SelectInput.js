@@ -44,8 +44,8 @@ const SelectInput = ({name,selectedList,setSelectedList}) => {
             <label
                 className="
                     block
-                    text-sm
-                    font-medium
+                    font-serif
+                    font-bold
                     pt-2
                     text-white
                     "

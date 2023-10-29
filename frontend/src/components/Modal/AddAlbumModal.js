@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Input from "../Inputs/Input";
 import ReactSwitch from 'react-switch';
 import SelectInput from "../Inputs/SelectInput";
-import FileInput from "../Inputs/FileInput";
+import ImageInput from "../Inputs/ImageInput";
 import { useQueryClient} from "react-query";
 import useAddAlbumMutation from "../../hooks/useAddAlbumMutation";
 import useDeleteAlbumMutation from "../../hooks/useDeleteAlbumMutation";
@@ -139,7 +139,7 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
                         autoComplete="on" 
                         value={name} 
                         onChange={(e)=>setName(e.target.value)}/>
-                    <FileInput 
+                    <ImageInput 
                         ref = {fileRef}
                         id={isAdd ? 'newAlbumImage' : 'albumImage'}
                         name='Album Cover'
@@ -156,9 +156,9 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
                     />
                     <SelectInput name='Collaborators' selectedList={selectedList} setSelectedList={setSelectedList}/>
                     <h4 className="block
-                        text-lg
-                        font-medium
-                        pt-4
+                        font-serif
+                        font-bold
+                        pt-2
                         text-white
                     ">Public Album</h4>
                     <ReactSwitch checked={isPublic} onChange={()=>setIsPublic(!isPublic)}/>

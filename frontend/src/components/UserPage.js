@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import ProfileInput from "./Inputs/ProfileInput";
 import { useAuth } from "../context/AuthProvider";
 import { useQueryClient } from "react-query";
-import FileInput from "./Inputs/FileInput";
+import ImageInput from "./Inputs/ImageInput";
 import { useEffect, useRef, useState } from "react";
 import useUpdateUserMutation from "../hooks/useUpdateUserMutation";
 import useUpdateUserImageMutation from "../hooks/useUpdateUserImageMutation";
@@ -110,7 +110,7 @@ const UserPage = () => {
                                 {user_info.username}
                             </p>
                         </div>
-                        <FileInput 
+                        <ImageInput 
                             ref = {fileRef}
                             id='userimage'
                             name='User Avatar'
