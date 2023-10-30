@@ -28,7 +28,7 @@ const Song = () => {
             `}>
                 <div className="bg-[#121212] h-full rounded-lg overflow-auto relative">
                     <span onClick={()=>navigate(-1)} 
-                        className='absolute top-2 left-4 cursor-pointer bg-black rounded-full'>
+                        className='fixed top-[130px] left-6 cursor-pointer bg-black rounded-full'>
                         <IconContext.Provider 
                             value={{ size: "2em", color: "#27AE60" }}>
                             <AiOutlineArrowLeft/>
