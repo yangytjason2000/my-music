@@ -4,16 +4,21 @@ import { AiFillPlayCircle, AiFillPauseCircle} from "react-icons/ai"; // icons fo
 import { BiSkipNext, BiSkipPrevious } from "react-icons/bi"; // icons for next and previous track
 import { GoTriangleRight} from "react-icons/go"
 import { IconContext } from "react-icons";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AiOutlineUnorderedList } from 'react-icons/ai';
 import { useExpand } from "../context/ExpandProvider";
 import MusicPlayerList from "./MusicPlayerList";
+import { changeSongList } from "../reducers/songListReducer";
+import data from "../data/data";
 const MusicPlayer = () =>{
+    const dispatch = useDispatch();
+    dispatch(changeSongList(data));
     const songList = useSelector((state)=>state.songList.songList); 
     const [isPlaying, setIsPlaying] = useState(false);
     const [sound, setSound] = useState(null);
     const [currentIndex, setCurrIndex] = useState(0);
     const [showList,setShowList] = useState(false);
+    const [isSeeking,setIsSeeking] = useState(false);
     const {expand,setExpand} = useExpand();
     const [time, setTime] = useState({
         min: "0",
@@ -26,6 +31,27 @@ const MusicPlayer = () =>{
     });
 
     const [seconds,setSeconds] = useState(0);
+
+    const handleMouseDown = () => {
+        setIsSeeking(true);
+    }
+
+    const handleProgressChange = (e) => {
+        const newValue = parseInt(e.target.value,10);
+        setSeconds(newValue);
+        setCurrTime({
+            min: Math.floor(newValue / 60),
+            sec: formatTime(Math.floor(newValue % 60)),
+        });
+    }
+
+    const handleMouseUp = (e) => {
+        if (sound) {
+            const seekValue = parseInt(e.target.value,10);
+            sound.seek(seekValue);
+        }
+        setIsSeeking(false);
+    }
 
     const changeCurrentIndex = useCallback((index) => {
         setCurrIndex(index);
@@ -101,17 +127,17 @@ const MusicPlayer = () =>{
     // update the current time
     useEffect(() => {
         const interval = setInterval(() => {
-          if (sound && isPlaying) {
-            const currentTime = sound.seek();
-            setSeconds(currentTime); // setting the seconds state with the current state
-            setCurrTime({
-              min: Math.floor(currentTime / 60),
-              sec: formatTime(Math.floor(currentTime % 60)),
-            });
-          }
+            if (sound && isPlaying && !isSeeking) {
+                const currentTime = sound.seek();
+                setSeconds(currentTime); // setting the seconds state with the current state
+                setCurrTime({
+                min: Math.floor(currentTime / 60),
+                sec: formatTime(Math.floor(currentTime % 60)),
+                });
+            }
         }, 1000);
         return () => clearInterval(interval);
-    }, [sound, isPlaying]);
+    }, [sound, isPlaying,isSeeking]);
 
     const playingButton = () =>{
         if (sound){
@@ -130,6 +156,7 @@ const MusicPlayer = () =>{
         setExpand(expand=>!expand);
         setShowList(false);
     }
+
     return (
         <div>
             <div className={`
@@ -173,12 +200,9 @@ const MusicPlayer = () =>{
                         max={time.min * 60 + parseInt(time.sec, 10)}
                         default="0"
                         value={seconds}
-                        onChange={(e) => {
-                            const seekValue = parseInt(e.target.value, 10);
-                            if (sound) {
-                                sound.seek(seekValue);
-                            }
-                        }}
+                        onMouseDown={handleMouseDown}
+                        onMouseUp={handleMouseUp}
+                        onChange={handleProgressChange}
                     />
                 </div>
                 <div className="items-center flex">

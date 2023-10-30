@@ -69,14 +69,14 @@ const LoginPage = () => {
                     id='email' 
                     name='Email Address' 
                     type='email' 
-                    autoComplete="on"
+                    autoComplete="email"
                     value={email}
                     onChange={(e)=>setEmail(e.target.value)}/>
                 <Input 
                     id='password' 
                     name='Password' 
                     type='password' 
-                    autoComplete="on"
+                    autoComplete={signIn ? "current-password" : "new-password"}
                     value={password}
                     onChange={(e)=>setPassword(e.target.value)}
                     />
