@@ -50,7 +50,7 @@ const AlbumRow = ({album,handleUpdate,setSelectedAlbum,isSignedIn}) => {
                             w-[140px]
                             h-[140px]
                             ${isImageLoaded ? 'opacity-100' : 'opacity-0'}
-                            duration-1000
+                            duration-300
                         `}>
                     </img> :
                     <span>

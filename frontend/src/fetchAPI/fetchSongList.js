@@ -1,5 +1,4 @@
-async function fetchSongList({ queryKey }){
-    const [,id] = queryKey;
+async function fetchSongList(id){
     const apiUrl =process.env.REACT_APP_API_URL+'song/?album_id='+id;
     try {
         const response = await fetch(apiUrl, {
