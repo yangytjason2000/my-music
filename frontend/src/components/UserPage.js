@@ -75,12 +75,8 @@ const UserPage = () => {
             bg-black
             text-black`}>
             <div className={`
-                w-[98%]
-                h-screen
-                pt-[120px]
+                page-container
                 ${expand ? 'pb-[90px]' : ''}
-                duration-300
-                overflow-auto
             `}>
                 <div className="bg-[#121212] h-full rounded-lg overflow-auto flex justify-center items-start pt-10 relative">
                     <span onClick={()=>navigate(-1)} 

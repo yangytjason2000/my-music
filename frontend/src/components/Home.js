@@ -35,11 +35,8 @@ const Home = () => {
             bg-black
             text-black`}>
             <div className={`
-                w-[98%]
-                h-screen
-                pt-[120px]
+                page-container
                 ${expand ? 'pb-[90px]' : ''}
-                duration-300
             `}>
                 <div className="bg-[#121212] h-full rounded-lg overflow-auto">
                     <div className='grid sm:grid-cols-1 md:grid-cols-4 gap-4 my-2 mx-2'>

@@ -17,7 +17,7 @@ const Navbar = () => {
             left-1/2 transform -translate-x-1/2
             fixed 
             w-[98%]
-            h-[100px] 
+            h-[80px] 
             flex 
             justify-between 
             items-center 
