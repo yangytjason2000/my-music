@@ -132,16 +132,17 @@ const UserPage = () => {
                                 className="bg-red-600 text-white px-3 py-2 rounded-md">
                                 Sign out
                             </button>
-                            <button disabled={infoChanged && imageChanged} 
+                            <button disabled={!infoChanged && !imageChanged} 
                                 onClick={handleSaveFile}
-                                className=
-                                {`bg-green-600 
-                                text-white 
-                                px-3 
-                                py-2 
-                                rounded-md
-                                ${(!infoChanged && !imageChanged) ? 'opacity-20' : ''}
-                                `}>
+                                className={`
+                                    bg-green-600 
+                                    text-white 
+                                    px-3 
+                                    py-2 
+                                    rounded-md
+                                    ${(!infoChanged && !imageChanged) ? 'opacity-20' : ''}
+                                `}
+                            >
                                 Save Profile
                             </button>
                         </div>

@@ -3,7 +3,7 @@ import Input from "../Inputs/Input";
 import ReactSwitch from 'react-switch';
 import SelectInput from "../Inputs/SelectInput";
 import ImageInput from "../Inputs/ImageInput";
-import { useQueryClient} from "react-query";
+import { useQuery, useQueryClient} from "react-query";
 import useAddAlbumMutation from "../../hooks/useAddAlbumMutation";
 import useDeleteAlbumMutation from "../../hooks/useDeleteAlbumMutation";
 import useUpdateAlbumMutation from "../../hooks/useUpdateAlbumMutation";
@@ -11,6 +11,7 @@ import AddButton from "../Buttons/AddButton";
 import { useAuth } from "../../context/AuthProvider";
 import toast from "react-hot-toast";
 import handleImageSubmit from "../Actions/HandleImageSubmit";
+import fetchAlbumImageById from "../../fetchAPI/fetchAlbumImageById";
 
 const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
     const fileRef = useRef();
@@ -24,10 +25,21 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
     const [imageChanged, setImageChanged] = useState(false);
 
     const [initialState,setInitialState] = useState(album);
-    const [updateDisabled,setUpdateDisabled] = useState(true);
+    const [infoChanged,setInfoChanged] = useState(false);
     const {isSignedIn} = useAuth();
 
+    const { data: album_image = null, isLoading, isError } = useQuery(
+        ['album_image', album?.id], // Accessing id of possibly null album safely using optional chaining.
+        () => fetchAlbumImageById(album.id),
+        {
+            enabled: !!album && !!album.id && isSignedIn, // Check both album existence and user authentication.
+        }
+    );
+
     useEffect(()=>{
+        if (!visible){
+            return;
+        }
         if (isAdd) {
             setInitialState(null);
             setName('');
@@ -35,21 +47,35 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
             setSelectedList([]);
             setImage(null);
             setImagePreview(null);
+            return;
         }
         else if (album && !isAdd) {
             setInitialState({
                 name: album?.name || '',
                 isPublic: album?.isPublic || false,
                 collaborators: album?.collaborators || [],
-                image: album?.image || null,
             })
             setName(album?.name || '');
             setIsPublic(album?.isPublic || false);
             setSelectedList(album?.collaborators || []);
-            setImage(album?.image || null);
-            setImagePreview(album?.image || null);
         }
     },[album,isAdd,visible]);
+
+    useEffect(()=>{
+        if (!visible || imageChanged || isAdd){
+            return;
+        }
+        if (isLoading || isError){
+            return;
+        }
+        if (album_image) {
+            setImage(album_image);
+            setImagePreview(album_image);
+        }
+        else {
+            setImagePreview(null);
+        }
+    },[album_image,isLoading,isError,visible,imageChanged,isAdd])
 
     useEffect(() => {
         const checkIfFormChanged = () => {
@@ -59,18 +85,17 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
             if (
                 initialState.name !== name ||
                 initialState.isPublic !== isPublic ||
-                initialState.image !== image ||
                 JSON.stringify(initialState.collaborators) !== JSON.stringify(selectedList)
             ) {
-                setUpdateDisabled(false);
+                setInfoChanged(true);
             } else {
-                setUpdateDisabled(true);
+                setInfoChanged(false);
             }
         };
         if (!isAdd){
             checkIfFormChanged();
         }
-    }, [name, isPublic, selectedList, image, initialState, isAdd]);
+    }, [name, isPublic, selectedList, initialState, isAdd]);
 
     const handleClose = () => {
         setIsPublic(false);
@@ -78,6 +103,8 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
         setImage(null);
         setSelectedList([]);
         setImagePreview(null);
+        setInfoChanged(false);
+        setImageChanged(false);
         fileRef.current.value = "";
         onClose();
     }
@@ -167,7 +194,7 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
                     {isAdd ?
                     <AddButton disabled={name===''} text="Add" handleSubmit={handleSubmit}/>
                         :
-                    <AddButton disabled={updateDisabled} text="Update" handleSubmit={handleSubmit}/>
+                    <AddButton disabled={!infoChanged && !imageChanged} text="Update" handleSubmit={handleSubmit}/>
                     }
                     {!isAdd && <button className=
                         {`rounded-md 

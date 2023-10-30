@@ -16,6 +16,9 @@ const AddSongModal = ({visible,onClose,id,song,isAdd}) => {
     const {isSignedIn} = useAuth();
 
     useEffect(()=>{
+        if (!visible){
+            return;
+        }
         if (isAdd){
             setInitialState(null);
             setName('');

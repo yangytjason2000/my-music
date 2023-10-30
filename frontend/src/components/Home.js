@@ -49,7 +49,8 @@ const Home = () => {
                                     key={index} 
                                     album={album} 
                                     handleUpdate={handleUpdate}
-                                    setSelectedAlbum={setSelectedAlbum}/> 
+                                    setSelectedAlbum={setSelectedAlbum}
+                                    isSignedIn={isSignedIn}/> 
                             )})
                         }
                         <AddAlbumModal 

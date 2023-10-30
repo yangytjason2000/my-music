@@ -2,8 +2,22 @@ import { Link } from "react-router-dom";
 import { IconContext } from "react-icons";
 import { IoIosAlbums } from "react-icons/io";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import fetchAlbumImageById from "../../fetchAPI/fetchAlbumImageById";
+import { useQuery } from "react-query";
+import { useState } from "react";
 
-const AlbumRow = ({album,handleUpdate,setSelectedAlbum}) => {
+const AlbumRow = ({album,handleUpdate,setSelectedAlbum,isSignedIn}) => {
+    const {data: album_image = null, isLoading,isError} = useQuery(
+        ['album_image',album.id],
+        ()=>fetchAlbumImageById(album.id),
+        {
+            enabled: isSignedIn,
+        }
+    );
+
+    const noAlbumImage = isLoading || isError || !album_image;
+    const [isImageLoaded,setIsImageLoaded] = useState(false);
+
     const handleClick = () => {
         setSelectedAlbum(album);
         handleUpdate();
@@ -28,14 +42,23 @@ const AlbumRow = ({album,handleUpdate,setSelectedAlbum}) => {
             `}>    
             <div className='flex flex-col justify-center items-center'>
                 <Link key={album.id} to={`/album/${album.id}`}>
-                {album.image ? 
-                <img src={album.image} alt="album logo" className="w-[140px] h-[140px]"></img> :
-                <span>
-                    <IconContext.Provider 
-                        value={{ size: "140px", color: "#27AE60" }}>
-                        <IoIosAlbums/>
-                    </IconContext.Provider>
-                </span>}
+                {!noAlbumImage ?
+                    <img src={album_image} 
+                        onLoad={()=>setIsImageLoaded(true)}
+                        alt="album logo" 
+                        className={`
+                            w-[140px]
+                            h-[140px]
+                            ${isImageLoaded ? 'opacity-100' : 'opacity-0'}
+                            duration-1000
+                        `}>
+                    </img> :
+                    <span>
+                        <IconContext.Provider 
+                            value={{ size: "140px", color: "#27AE60" }}>
+                            <IoIosAlbums/>
+                        </IconContext.Provider>
+                    </span>}
                 </Link>
                 <button onClick={handleClick} type='button' 
                     className="absolute top-0 right-0 pt-2 pr-2">

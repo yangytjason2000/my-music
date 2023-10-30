@@ -1,7 +1,6 @@
 import toast from "react-hot-toast";
 
-async function fetchAlbumImageById({querykey}){
-    const[,id] = querykey;
+async function fetchAlbumImageById(id){
     const apiUrl =process.env.REACT_APP_API_URL+'album_image/?id='+id;
     try {
         const response = await fetch(apiUrl, {
