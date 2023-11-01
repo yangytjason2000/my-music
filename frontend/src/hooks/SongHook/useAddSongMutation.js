@@ -2,7 +2,7 @@ import { useMutation } from "react-query";
 import toast from "react-hot-toast";
 
 const useAddSongMutation = (handleClose,queryClient) => {
-    return useMutation(async (songData) => {
+    const mutation = useMutation(async (songData) => {
         const apiUrl =process.env.REACT_APP_API_URL+'song/';
         const response = await fetch(apiUrl,{
             method: 'POST',
@@ -15,25 +15,31 @@ const useAddSongMutation = (handleClose,queryClient) => {
         
         if (response.ok){
             const res = await response.json();
-            toast.success('Successfully added a song');
-            console.log(res);
             return res;
         }
         else{
-            toast.error("Can't add new song")
-            console.error("can't add new song");
+            throw new Error('Fail to add a new song')
         }
     }, {
         onSuccess: (data,variables) => {
             queryClient.invalidateQueries(['songs',variables.album_id+'']);
-            queryClient.refetchQueries(['songs',variables.album_id+'']);
             handleClose();
         },
         onError: (error) => {
-            toast.error('Failed to add a new song')
             console.error('Failed to add a new song: ',error);
         }
     }
 );
+    const wrappedMutation = async(data) => {
+        toast.promise(
+            mutation.mutateAsync(data),
+            {
+                loading: "Adding a new song...",
+                success: "Successfully added a new song!",
+                error: "Failed to add a new song", 
+            }
+        );
+    }
+    return wrappedMutation;
 };
 export default useAddSongMutation;

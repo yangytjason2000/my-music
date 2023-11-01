@@ -1,11 +1,11 @@
 import toast from "react-hot-toast";
 import { useMutation } from "react-query";
 
-const useDeleteSongMutation = (handleClose,queryClient) => {
-    return useMutation(async (songData) => {
+const useUpdateSongMutation = (handleClose,queryClient) => {
+    const mutation = useMutation(async (songData) => {
         const apiUrl =process.env.REACT_APP_API_URL+'song/';
         const response = await fetch(apiUrl,{
-            method: 'DELETE',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -15,25 +15,32 @@ const useDeleteSongMutation = (handleClose,queryClient) => {
         
         if (response.ok){
             const res = await response.json();
-            toast.success('Successfully delete the song!');
-            console.log(res);
             return res;
         }
         else{
-            toast.error('Failed to delete the song');
-            console.error("can't delete the song");
+            throw new Error('Failed to update');
         }
     }, {
         onSuccess: (data,variables) => {
             queryClient.invalidateQueries(['songs',variables.album_id+'']);
-            queryClient.refetchQueries(['songs',variables.album_id+'']);
             handleClose();
         },
         onError: (error) => {
-            toast.error('Failed to delete the song');
-            console.error('Failed to delete a song: ',error);
+            console.error('Failed to update a song: ',error);
         }
     }
 );
+
+    const wrappedMutation = async(data) => {
+        toast.promise(
+            mutation.mutateAsync(data),
+            {
+                loading: "Updating the song...",
+                success: "Successfully updated the song!",
+                error: "Failed to update the song", 
+            }
+        );
+    }
+    return wrappedMutation;
 };
-export default useDeleteSongMutation;
+export default useUpdateSongMutation;

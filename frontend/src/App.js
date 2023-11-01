@@ -16,7 +16,7 @@ function MainLayout() {
     <div>
       <Navbar/>
       <Routes>
-        <Route exact path='/' element={<Home/>}/>
+        <Route index element={<Home/>}/>
         <Route path='/user_page' 
           element={<ProtectedRoute redirectTo='/' authenticated={true}><UserPage/></ProtectedRoute>}
         />

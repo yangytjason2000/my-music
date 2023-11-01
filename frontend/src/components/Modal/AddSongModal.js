@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import Input from "../Inputs/Input";
-import useAddSongMutation from "../../hooks/useAddSongMutation";
+import useAddSongMutation from "../../hooks/SongHook/useAddSongMutation";
 import { useQueryClient } from "react-query";
 import AddButton from "../Buttons/AddButton";
-import useDeleteSongMutation from "../../hooks/useDeleteSongMutation";
+import useDeleteSongMutation from "../../hooks/SongHook/useDeleteSongMutation";
 import { useAuth } from "../../context/AuthProvider";
 import toast from "react-hot-toast";
-import useUpdateSongMutation from "../../hooks/useUpdateSongMutation";
+import useUpdateSongMutation from "../../hooks/SongHook/useUpdateSongMutation";
 
 const AddSongModal = ({visible,onClose,id,song,isAdd}) => {
     const queryClient = useQueryClient();
@@ -74,10 +74,10 @@ const AddSongModal = ({visible,onClose,id,song,isAdd}) => {
             album_id: id,
         };
         if (isAdd){
-            addSongMutation.mutate(requestBody);
+            addSongMutation(requestBody);
         }
         else {
-            updateSongMutation.mutate(requestBody);
+            updateSongMutation(requestBody);
         }
     }
 
@@ -86,7 +86,7 @@ const AddSongModal = ({visible,onClose,id,song,isAdd}) => {
             id: song.id,
             album_id: id,
         }
-        deleteSongMutation.mutate(requestBody);
+        deleteSongMutation(requestBody);
     }
 
     return (

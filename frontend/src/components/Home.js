@@ -12,11 +12,11 @@ import { useAuth } from '../context/AuthProvider';
 const Home = () => {
     const {isSignedIn} = useAuth();
     const [selectedAlbum, setSelectedAlbum] = useState(null);
+    const [selectedAlbumImage,setSelectedAlbumImage] = useState(null);
     const {data: albums = []} = useQuery('albums',fetchAlbumList, {enabled: isSignedIn});
     const [modalVisible,setModalVisible] = useState(false);
     const [isAdd,setIsAdd] = useState(false);
     const {expand} = useExpand();
-
     const handleAdd = () => {
         setIsAdd(true);
         setModalVisible(true);
@@ -39,7 +39,7 @@ const Home = () => {
                 ${expand ? 'pb-[90px]' : ''}
             `}>
                 <div className="bg-[#121212] h-full rounded-lg overflow-auto">
-                    <div className='grid sm:grid-cols-1 md:grid-cols-4 gap-4 my-2 mx-2'>
+                    <div className='grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 my-2 mx-2'>
                         {albums.map((album,index)=>{
                             return (
                                 <AlbumRow 
@@ -47,6 +47,7 @@ const Home = () => {
                                     album={album} 
                                     handleUpdate={handleUpdate}
                                     setSelectedAlbum={setSelectedAlbum}
+                                    setSelectedAlbumImage={setSelectedAlbumImage}
                                     isSignedIn={isSignedIn}/> 
                             )})
                         }
@@ -54,6 +55,7 @@ const Home = () => {
                             visible={modalVisible} 
                             onClose={()=>setModalVisible(false)} 
                             album={selectedAlbum}
+                            albumImage={selectedAlbumImage}
                             isAdd={isAdd}
                         />
 

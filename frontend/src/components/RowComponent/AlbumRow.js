@@ -6,12 +6,12 @@ import fetchAlbumImageById from "../../fetchAPI/fetchAlbumImageById";
 import { useQuery } from "react-query";
 import { useState } from "react";
 
-const AlbumRow = ({album,handleUpdate,setSelectedAlbum,isSignedIn}) => {
+const AlbumRow = ({album,handleUpdate,setSelectedAlbum, setSelectedAlbumImage,isSignedIn}) => {
     const {data: album_image = null, isLoading,isError} = useQuery(
         ['album_image',album.id],
         ()=>fetchAlbumImageById(album.id),
         {
-            enabled: isSignedIn,
+            enabled: isSignedIn && !!album,
         }
     );
 
@@ -20,6 +20,7 @@ const AlbumRow = ({album,handleUpdate,setSelectedAlbum,isSignedIn}) => {
 
     const handleClick = () => {
         setSelectedAlbum(album);
+        setSelectedAlbumImage(album_image);
         handleUpdate();
     } 
     return (

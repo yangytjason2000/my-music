@@ -3,38 +3,27 @@ import Input from "../Inputs/Input";
 import ReactSwitch from 'react-switch';
 import SelectInput from "../Inputs/SelectInput";
 import ImageInput from "../Inputs/ImageInput";
-import { useQuery, useQueryClient} from "react-query";
-import useAddAlbumMutation from "../../hooks/useAddAlbumMutation";
-import useDeleteAlbumMutation from "../../hooks/useDeleteAlbumMutation";
-import useUpdateAlbumMutation from "../../hooks/useUpdateAlbumMutation";
+import {useQueryClient} from "react-query";
+import useAddAlbumMutation from "../../hooks/AlbumHook/useAddAlbumMutation";
+import useDeleteAlbumMutation from "../../hooks/AlbumHook/useDeleteAlbumMutation";
+import useUpdateAlbumMutation from "../../hooks/AlbumHook/useUpdateAlbumMutation";
 import AddButton from "../Buttons/AddButton";
 import { useAuth } from "../../context/AuthProvider";
 import toast from "react-hot-toast";
 import handleImageSubmit from "../Actions/HandleImageSubmit";
-import fetchAlbumImageById from "../../fetchAPI/fetchAlbumImageById";
 
-const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
+const AddAlbumModal = ({visible,onClose, album, albumImage, isAdd}) => {
     const fileRef = useRef();
     const queryClient = useQueryClient();
     const [name,setName] = useState('');
     const [isPublic,setIsPublic] = useState(false);
     const [selectedList, setSelectedList] = useState([]);
-
-    const [image,setImage] = useState(null);
-    const [imagePreview,setImagePreview] = useState('');
+    const [image,setImage] = useState(albumImage);
+    const [imagePreview,setImagePreview] = useState(albumImage);
     const [imageChanged, setImageChanged] = useState(false);
-
     const [initialState,setInitialState] = useState(album);
     const [infoChanged,setInfoChanged] = useState(false);
     const {isSignedIn} = useAuth();
-
-    const { data: album_image = null, isLoading, isError } = useQuery(
-        ['album_image', album?.id], // Accessing id of possibly null album safely using optional chaining.
-        () => fetchAlbumImageById(album.id),
-        {
-            enabled: !!album && !!album.id && isSignedIn, // Check both album existence and user authentication.
-        }
-    );
 
     useEffect(()=>{
         if (!visible){
@@ -58,24 +47,11 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
             setName(album?.name || '');
             setIsPublic(album?.isPublic || false);
             setSelectedList(album?.collaborators || []);
+            setImage(albumImage);
+            setImagePreview(albumImage);
         }
-    },[album,isAdd,visible]);
+    },[album,albumImage,isAdd,visible]);
 
-    useEffect(()=>{
-        if (!visible || imageChanged || isAdd){
-            return;
-        }
-        if (isLoading || isError){
-            return;
-        }
-        if (album_image) {
-            setImage(album_image);
-            setImagePreview(album_image);
-        }
-        else {
-            setImagePreview(null);
-        }
-    },[album_image,isLoading,isError,visible,imageChanged,isAdd])
 
     useEffect(() => {
         const checkIfFormChanged = () => {
@@ -131,16 +107,16 @@ const AddAlbumModal = ({visible,onClose, album, isAdd}) => {
         formData.append('isPublic',isPublic);
         formData.append('image',image);
         if (!isAdd){
-            updateAlbumMutation.mutate(formData);
+            updateAlbumMutation(formData);
         }
         else {
-            addAlbumMutation.mutate(formData);
+            addAlbumMutation(formData);
         }
     }
     const handleDelete = async () => {
         const formData = new FormData();
         formData.append('id',album.id);
-        deleteAlbumMutation.mutate(formData);
+        deleteAlbumMutation(formData);
     }
 
     return (

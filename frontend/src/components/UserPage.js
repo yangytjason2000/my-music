@@ -7,8 +7,8 @@ import { useAuth } from "../context/AuthProvider";
 import { useQueryClient } from "react-query";
 import ImageInput from "./Inputs/ImageInput";
 import { useEffect, useRef, useState } from "react";
-import useUpdateUserMutation from "../hooks/useUpdateUserMutation";
-import useUpdateUserImageMutation from "../hooks/useUpdateUserImageMutation";
+import useUpdateUserMutation from "../hooks/UserHook/useUpdateUserMutation";
+import useUpdateUserImageMutation from "../hooks/UserHook/useUpdateUserImageMutation";
 import logout from "./Actions/Logout";
 import handleImageSubmit from "./Actions/HandleImageSubmit";
 
@@ -55,11 +55,11 @@ const UserPage = () => {
         const formData = new FormData();
         formData.append('image',image);
         if (infoChanged){
-            updateUserMutation.mutate(requestBody);
+            updateUserMutation(requestBody);
             setInfoChanged(false);
         }
         if (imageChanged) {
-            updateUserImageMutation.mutate(formData);
+            updateUserImageMutation(formData);
             setImageChanged(false);
             fileRef.current.value="";
         }

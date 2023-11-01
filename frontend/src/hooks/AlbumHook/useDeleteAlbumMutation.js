@@ -2,7 +2,7 @@ import toast from "react-hot-toast";
 import { useMutation } from "react-query";
 
 const useDeleteAlbumMutation = (handleClose,queryClient) => {
-    return useMutation(async (formData) => {
+    const mutation = useMutation(async (formData) => {
         const apiUrl =process.env.REACT_APP_API_URL+'album/';
         const response = await fetch(apiUrl,{
             method: 'DELETE',
@@ -12,25 +12,33 @@ const useDeleteAlbumMutation = (handleClose,queryClient) => {
         
         if (response.ok){
             const res = await response.json();
-            toast.success('Successfully delete the album!');
             return res;
         }
         else{
-            toast.error('Failed to delete the album');
-            console.error("can't add new album");
+            throw new Error("Can't delete the album");
         }
     }, {
         onSuccess: () => {
-            queryClient.invalidateQueries('albums');
-            queryClient.refetchQueries('albums');
+            queryClient.invalidateQueries('albums');    
             handleClose();
         },
         onError: (error) => {
-            toast.error('Failed to delete the album');
-            console.error('Failed to delete a album: ',error);
+            console.error('Failed to delete the album: ',error);
         }
     }
 );
+
+    const wrappedMutation = async(formData) => {
+        toast.promise(
+            mutation.mutateAsync(formData),
+            {
+            loading: "Deleting the album...",
+            success: "Successfully deleted the album!",
+            error: "Failed to delte the album", 
+            }
+        );
+    }
+    return wrappedMutation;
 };
 
 export default useDeleteAlbumMutation;

@@ -2,7 +2,7 @@ import toast from "react-hot-toast";
 import { useMutation } from "react-query";
 
 const useUpdateUserMutation = (queryClient) => {
-    return useMutation(async (userInfo) => {
+    const mutation = useMutation(async (userInfo) => {
         const apiUrl =process.env.REACT_APP_API_URL+'user/';
         const response = await fetch(apiUrl,{
             method: 'PUT',
@@ -15,23 +15,30 @@ const useUpdateUserMutation = (queryClient) => {
         
         if (response.ok){
             const res = await response.json();
-            toast.success('Update Successed!');
-            console.log(res);
             return res;
         }
         else{
-            toast.error('Update Failed!')
-            console.error("can't update a song");
+            throw new Error('Update failed')
         }
     }, {
         onSuccess: () => {
             queryClient.invalidateQueries('user_info');
-            queryClient.refetchQueries('user_info');
         },
         onError: (error) => {
             console.error('Failed to update user info: ',error);
         }
     }
 );
+    const wrappedMutation = async(userData) => {
+        toast.promise(
+            mutation.mutateAsync(userData),
+            {
+                loading: "Updating user info",
+                success: "Successfully updated the user info!",
+                error: "Failed to update the user info", 
+            }
+        );
+    }
+    return wrappedMutation;
 };
 export default useUpdateUserMutation;
